@@ -126,7 +126,7 @@ class nodepool (
 
   include pip
   exec { 'install_nodepool' :
-    command     => 'pip install /opt/nodepool',
+    command     => 'pip install -U /opt/nodepool',
     path        => '/usr/local/bin:/usr/bin:/bin/',
     refreshonly => true,
     subscribe   => Vcsrepo['/opt/nodepool'],
