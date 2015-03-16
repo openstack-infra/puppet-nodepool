@@ -32,6 +32,7 @@ class nodepool (
   $sudo = true,
   $scripts_dir = '',
   $elements_dir = '',
+  $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
 ) {
 
   # needed by python-keystoneclient, has system bindings
@@ -254,7 +255,7 @@ class nodepool (
     mode    => '0444',
     owner   => 'root',
     group   => 'root',
-    content => template('nodepool/nodepool.logging.conf.erb'),
+    content => template($logging_conf_template),
   }
 
   file { '/etc/init.d/nodepool':
