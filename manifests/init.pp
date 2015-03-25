@@ -82,6 +82,11 @@ class nodepool (
     'libgmp-dev',         # transitive dep of paramiko
     # debootstrap is needed for building Debian images
     'debootstrap',
+    'debian-keyring',
+    'ubuntu-keyring',
+    'yum',
+    'yum-utils',
+    'python-lzma',
   ]
 
   package { $packages:
