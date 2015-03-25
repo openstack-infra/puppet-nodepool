@@ -9,6 +9,7 @@
   "issues_url": "https://storyboard.openstack.org/#!/project/765",
   "dependencies": [
     {"name":"puppetlabs/apt"},
-    {"name":"openstackci/vcsrepo","version_requirement":">= 0.0.8"}
+    {"name":"openstackci/vcsrepo","version_requirement":">= 0.0.8"},
+    {"name":"openstackinfra/diskimage-builder"}
   ]
 }
