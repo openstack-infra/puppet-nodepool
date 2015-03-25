@@ -82,11 +82,20 @@ class nodepool (
     'libgmp-dev',         # transitive dep of paramiko
     # debootstrap is needed for building Debian images
     'debootstrap',
+    'debian-keyring',
+    'ubuntu-keyring',
+    'vhd-util',
+    'yum',
+    'yum-utils',
+    'python-lzma',
   ]
 
   package { $packages:
-    ensure => present,
+    ensure  => present,
+    require => Apt::Ppa['ppa:mordred/infra'],
   }
+
+  apt::ppa { 'ppa:mordred/infra': }
 
   file { '/etc/mysql/conf.d/max_connections.cnf':
     ensure  => present,

@@ -8,6 +8,7 @@
   "project_page": "http://ci.openstack.org/",
   "issues_url": "https://storyboard.openstack.org/#!/project/765",
   "dependencies": [
+    {"name":"puppetlabs/apt"},
     {"name":"openstackci/vcsrepo","version_requirement":">= 0.0.8"}
   ]
 }
