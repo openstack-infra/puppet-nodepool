@@ -43,7 +43,6 @@ class nodepool (
     }
   }
 
-  # required by the nodepool diskimage-builder element scripts
   if ! defined(Package['python-yaml']) {
     package { 'python-yaml':
       ensure => present,
@@ -77,16 +76,7 @@ class nodepool (
     'build-essential',
     'libffi-dev',
     'libssl-dev',
-    'kpartx',
-    'qemu-utils',
     'libgmp-dev',         # transitive dep of paramiko
-    # debootstrap is needed for building Debian images
-    'debootstrap',
-    'debian-keyring',
-    'ubuntu-keyring',
-    'yum',
-    'yum-utils',
-    'python-lzma',
   ]
 
   package { $packages:
@@ -121,14 +111,7 @@ class nodepool (
     source   => $git_source_repo,
   }
 
-  package { 'diskimage-builder':
-    ensure   => latest,
-    provider => pip,
-    require  => [
-      Class['pip'],
-      Package['python-yaml'],
-    ],
-  }
+  include diskimage_builder
 
   include pip
   exec { 'install_nodepool' :

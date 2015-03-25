@@ -8,6 +8,7 @@
   "project_page": "http://ci.openstack.org/",
   "issues_url": "https://storyboard.openstack.org/#!/project/765",
   "dependencies": [
-    {"name":"openstackci/vcsrepo","version_requirement":">= 0.0.8"}
+    {"name":"openstackci/vcsrepo","version_requirement":">= 0.0.8"},
+    {"name":"openstackinfra/diskimage-builder"}
   ]
 }
