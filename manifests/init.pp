@@ -35,14 +35,6 @@ class nodepool (
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
 ) {
 
-  # needed by python-keystoneclient, has system bindings
-  # Zuul and Nodepool both need it, so make it conditional
-  if ! defined(Package['python-lxml']) {
-    package { 'python-lxml':
-      ensure => present,
-    }
-  }
-
   # required by the nodepool diskimage-builder element scripts
   if ! defined(Package['python-yaml']) {
     package { 'python-yaml':
@@ -88,6 +80,9 @@ class nodepool (
     'yum',
     'yum-utils',
     'python-lzma',
+    # xml2 and xslt are needed to build python lxml.
+    'libxml2-dev',
+    'libxslt-dev',
   ]
 
   package { $packages:
@@ -145,7 +140,8 @@ class nodepool (
       Package['build-essential'],
       Package['libffi-dev'],
       Package['libssl-dev'],
-      Package['python-lxml'],
+      Package['libxml2-dev'],
+      Package['libxslt-dev'],
       Package['libgmp-dev'],
     ],
   }
