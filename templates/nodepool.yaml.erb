@@ -1,0 +1,130 @@
+script-dir: /etc/nodepool/scripts
+elements-dir: /etc/nodepool/elements
+images-dir: /opt/nodepool_dib
+dburi: 'mysql+pymysql://nodepool:<%= mysql_password %>@localhost/nodepool'
+
+cron:
+  cleanup: '<%= cron_cleanup %>'
+  check: '<%= cron_check %>'
+  image-update: '<%= image_update %>'
+
+<% if (@zmq_publishers.is_a? Array) && (@zmq_publishers.length>0) -%>
+zmq-publishers:
+  <% @zmq_publishers.each do |zmq_publisher| %>
+  - <%= zmq_publisher %>
+  <% end -%>
+<% end -%>
+
+<% if (@gearman_servers.is_a? Array) && (@gearman_servers.length>0) -%>
+gearman-servers:
+  <% @gearman_servers.each do |gearman_server| -%>
+  - host: <%= gearman_server['host'] %>
+    <% if gearman_server.has_key?('port') then -%>
+  - port: <%= gearman_server['port'] %>
+    <% end -%>
+  <% end -%>
+<% end -%>
+
+<% if (@labels.is_a? Array) && (@labels.length>0) -%>
+labels:
+  <% @labels.each do |label| -%>
+  - name: <%= label['name'] %>
+    image: <%= label['image'] %>
+    providers:
+    <% @label['providers'].each do |provider| -%>
+      - name: <%= provider %>
+      <% label['optional_settings'].keys.sort.each do |label_setting| %>
+      <%= label_setting -%>: <%= label['optional_settings'][label_setting] %>
+      <% end -%>
+    <% end -%>
+  <% end -%>
+<% end -%>
+
+<% if (@providers.is_a? Array) && (@providers.length>0) -%>
+providers:
+  <% @providers.each do |provider| -%>
+  - name: <%= provider['name'] %>
+    username: '<%= provider['username'] %>'
+    password: '<%= provider['password'] %>'
+    project-id: '<%= provider['project_id'] %>'
+    auth-url: '<%= provider['auth_url'] %>'
+    max-servers: <%= provider['max_servers'] %>
+
+    <% provider['optional_settings'].keys.sort.each do |provider_setting| %>
+    <% if provider_setting == 'availability-zones' -%>
+    availability-zones:
+      <% provider['optional_settings'][provider_setting].each do |provider_az| -%>
+      - <%= provider_az %>
+      <% end -%>
+    <% elsif provider_setting == 'networks' -%>
+    networks:
+      <% provider['optional_settings'][provider_setting].each do |provider_network| -%>
+        <% if provider_network.has_key?('net-id') -%>
+      - net-id: <%= provider_network['net-id'] %>
+        <% end -%>
+        <% if provider_network.has_key?('net-label') -%>
+      - net-label: <%= provider_network['net-label'] %>
+        <% end -%>
+      <% end -%>
+    <% elsif provider_setting == 'images' -%>
+    images:
+      <% provider['optional_settings'][provider_setting].each do |provider_image| -%>
+      - name: '<%= provider_image['name'] %>'
+        base-image: '<%= provider_image['base-image'] %>'
+        min-ram: <%= provider_image['min-ram'] %>
+        <% provider_image['optional_settings'].keys.sort.each do |provider_image_setting| %>
+        <%= provider_image_setting -%>: <%= provider_image['optional_settings'][provider_image_setting] %>
+        <% end -%>
+      <% end -%>
+    <% else -%>
+    <%= provider_setting -%>: <% provider['optional_settings'][provider_setting] %>
+    <% end -%>
+    <% end -%>
+  <% end -%>
+<% end -%>
+
+<% if (@targets.is_a? Array) && (@targets.length>0) -%>
+targets:
+  <% @targets.each do |target| -%>
+  - name: <%= target['name'] %>
+    <% target['optional_settings'].keys.sort.each do |target_setting| %>
+    <% if target_setting == 'jenkins' -%>
+    jenkins:
+      url: <%= target['optional_settings']['jenkins']['url'] %>
+      user: <%= target['optional_settings']['jenkins']['user'] %>
+      apikey: <%= target['optional_settings']['jenkins']['apikey'] %>
+      <% if target['optional_settings']['jenkins'].has_key?('credentials-id') then -%>
+      credentials-id: <%= target['optional_settings']['jenkins']['credentials-id'] %>
+      <% end -%>
+      <% if target['optional_settings']['jenkins'].has_key?('test-job') then -%>
+      test-job: <%= target['optional_settings']['jenkins']['test-job'] %>
+      <% end -%>
+    <% else -%>
+    <%= target_setting -%>: <%= target['optional_settings'][target_setting] %>
+    <% end -%>
+    <% end -%>
+  <% end -%>
+<% end -%>
+
+<% if (@diskimages.is_a? Array) && (@diskimages.length>0) -%>
+diskimages:
+  <% @diskimages.each do |diskimage| -%>
+  - name: <%= diskimage['name'] %>
+    <% diskimage['optional_settings'].keys.sort.each do |diskimage_setting| %>
+    <% if diskimage_setting == 'release' -%>
+    release: <%= diskimage['optional_settings']['release'] %>
+    <% elsif diskimage_setting == 'elements' -%>
+    elements:
+      <% diskimage['optional_settings']['elements'].each do |element| -%>
+      - <%= element %>
+      <% end -%>
+    <% elsif diskimage_setting == 'env-vars' -%>
+    env-vars:
+      <% diskimage['optional_settings']['env-vars'].keys.sort.each do |diskimage_envvar| %>
+      <%= diskimage_envvar -%>: <%= diskimage['optional_settings']['env-vars'][diskimage_envvar] %>
+      <% end -%>
+    <% end -%>
+    <% end -%>
+  <% end -%>
+<% end -%>
+
