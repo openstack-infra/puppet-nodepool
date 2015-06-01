@@ -33,6 +33,98 @@ class nodepool (
   $scripts_dir = '',
   $elements_dir = '',
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
+  $manage_nodepool_template = false,
+  $cron_cleanup = '*/1 * * * *',
+  $cron_check = '*/15 * * * *',
+  $image_update = '14 14 * * *',
+  $zmq_publishers = [],  # refer to: http://docs.openstack.org/infra/nodepool/configuration.html#zmq-publishers
+  $gearman_servers = [], # refer to: http://docs.openstack.org/infra/nodepool/configuration.html#gearman-servers
+  # define that as:
+  # $gearman_servers = [
+  #     {
+  #       'host' => 'gearman_host',
+  #       'port' => 4730,
+  #     }
+  # ],
+  $labels = [], # refer to: http://docs.openstack.org/infra/nodepool/configuration.html#labels
+  # define that as:
+  # $labels => [
+  #     {
+  #       'name'              => 'label name',
+  #       'image'             => 'label image',
+  #       'providers'         => [ 'provider1', 'provider2', ],
+  #       'optional_settings' => {
+  #         'ready-script' => 'label_script.sh',
+  #         'min-ready'    => 2,
+  #         'subnodes'     => 1,
+  #        }
+  #     }
+  # ]
+  $providers = [],# refer to: http://docs.openstack.org/infra/nodepool/configuration.html#providers
+  # define that as:
+  # $providers => [
+  #     {
+  #       'name'              => 'provider name',
+  #       'username'          => 'username',
+  #       'password'          => 'password',
+  #       'project-id'        => 'project-id',
+  #       'auth-url'          => 'http://url_for_auth',
+  #       'max-servers'       => '199',
+  #       'optional_settings' => {
+  #         'availability-zones' => ['az1', 'az2'],
+  #         'boot-timeout'   => '60',
+  #         'launch-timeout' => '3600',
+  #         'region-name'  => 'region name',
+  #         'service-type' => 'service type',
+  #         'service-name' => 'service name',
+  #         'api-timeout'  => '60',
+  #         'rate'         => '0.001',
+  #         'images'       => [
+  #           {
+  #             'name'        => 'provider_image_name',
+  #             'base-image'  => 'provider_base_image',
+  #             'min-ram'     => '8192',
+  #             'name-filter' => 'provider_name_filter',
+  #             'setup'       => 'provider_setup.sh',
+  #             'username'    => 'jenkins',
+  #             'private-key' => '/home/nodepool/.ssh/id_rsa',
+  #           },
+  #         ],
+  #         'networks'           => [
+  #             'net-id'    => 'net-id',
+  #             'net-label' => 'net-label',
+  #         ],
+  #       }
+  #     )
+  # ]
+  $targets = [],# refer to: http://docs.openstack.org/infra/nodepool/configuration.html#targets
+  # define that as:
+  # $targets => [
+  #     {
+  #       'name'         => 'target name',
+  #       'optional_settings' => {
+  #         'jenkins' => {
+  #           'url'             => 'https://url_to_jenkins',
+  #           'user'            => 'jenkins_user',
+  #           'apikey'          => 'jenkins_api_key',
+  #           'credentials-id'  => 'jenkins_credentials_id',
+  #         }
+  #       }
+  #     }
+  # ]
+  $diskimages = [],# refer to: http://docs.openstack.org/infra/nodepool/configuration.html#diskimages
+  # define that as:
+  # $diskimages => [
+  #     {
+  #       'name'              => 'diskimage name',
+  #       'optional_settings' => {
+  #         'elements'     => ['element1', 'element2'],
+  #         'env-vars'     => {'key1': 'value1', 'key2': 'value2'},
+  #         'release'      => 'trusty',
+  #       },
+  #     }
+  # ]
+
 ) {
 
 
@@ -289,5 +381,19 @@ class nodepool (
     owner  => 'root',
     group  => 'root',
     mode   => '0440',
+  }
+
+  if $manage_nodepool_template {
+    file { '/etc/nodepool/nodepool.yaml':
+      ensure  => present,
+      owner   => 'nodepool',
+      group   => 'root',
+      mode    => '0400',
+      content => template('nodepool/nodepool.yaml.erb'),
+      require => [
+        File['/etc/nodepool'],
+        User['nodepool'],
+      ],
+    }
   }
 }
