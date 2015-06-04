@@ -1,0 +1,15 @@
+[database]
+dburi=mysql+pymysql://nodepool:<%= mysql_password %>@localhost/nodepool
+
+<% @jenkins_masters.each do |master| -%>
+[jenkins "<%= master['name'] -%>"]
+user=<%= master['user'] %>
+apikey=<%= master['apikey'] %>
+<% if master.has_key?('credentials') -%>
+credentials=<%= master['credentials'] %>
+<% end -%>
+url=<%= master['url'] %>
+<% if master.has_key?('test-job') -%>
+test_job=<%= master['test-job'] %>
+<% end -%>
+<% end %>
