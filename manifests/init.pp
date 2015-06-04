@@ -33,6 +33,7 @@ class nodepool (
   $scripts_dir = '',
   $elements_dir = '',
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
+  $targets = [],
 ) {
 
 
@@ -237,6 +238,18 @@ class nodepool (
     content => template($logging_conf_template),
   }
 
+  file { '/etc/nodepool/nodepool.yaml':
+    ensure  => present,
+    owner   => 'nodepool',
+    group   => 'root',
+    mode    => '0400',
+    content => template('nodepool/nodepool.conf.erb'),
+    require => [
+      File['/etc/nodepool'],
+      User['nodepool'],
+    ],
+  }
+
   file { '/etc/init.d/nodepool':
     ensure => present,
     mode   => '0555',
@@ -290,4 +303,5 @@ class nodepool (
     group  => 'root',
     mode   => '0440',
   }
+
 }
