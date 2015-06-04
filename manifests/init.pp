@@ -33,6 +33,8 @@ class nodepool (
   $scripts_dir = '',
   $elements_dir = '',
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
+  $manage_clouds = false,
+  $clouds = [],
 ) {
 
 
@@ -289,5 +291,39 @@ class nodepool (
     owner  => 'root',
     group  => 'root',
     mode   => '0440',
+  }
+
+  if $manage_clouds {
+    validate_array($clouds)
+
+    file { '/home/nodepool/.config':
+      ensure  => directory,
+      owner   => 'nodepool',
+      group   => 'nodepool',
+      require => [
+        User['nodepool'],
+      ],
+    }
+
+    file { '/home/nodepool/.config/openstack':
+      ensure  => directory,
+      owner   => 'nodepool',
+      group   => 'nodepool',
+      require => [
+        File['/home/nodepool/.config'],
+      ],
+    }
+
+    file { '/home/nodepool/.config/openstack/clouds.yaml':
+      ensure  => present,
+      owner   => 'nodepool',
+      group   => 'nodepool',
+      mode    => '0400',
+      content => template('nodepool/clouds.yaml'),
+      require => [
+        File['/home/nodepool/.config/openstack'],
+        User['nodepool'],
+      ],
+    }
   }
 }

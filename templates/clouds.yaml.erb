@@ -1,0 +1,20 @@
+<% if (@clouds.is_a? Array) && (@clouds.length>0) -%>
+clouds:
+<% @clouds.each do |cloud| -%>
+  <%= cloud['name'] -%>:
+<% if cloud.has_key?('provider') -%>
+    cloud: <%= cloud['provider'] %>
+<% end -%>
+<% if cloud.has_key?('regions') -%>
+    region_name: <%= cloud['regions'] %>
+<% end -%>
+    auth:
+      username: '<%= cloud['username'] -%>'
+      password: '<%= cloud['password'] -%>'
+      project_id: '<%= cloud['project'] -%>'
+<% if cloud.has_key?('auth_url') -%>
+      auth_url: '<%= cloud['auth_url'] -%>'
+<% end -%>
+
+<% end %>
+<% end -%>
