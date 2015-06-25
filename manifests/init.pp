@@ -69,8 +69,23 @@ class nodepool (
     'libxslt-dev',
   ]
 
+  $dependencies = [
+     'futures',
+     'cliff',
+     'jsonpointer',
+     'dogpile.core',
+     'wrapt',
+     'shade',
+     'cryptography',
+  ]
+
   package { $packages:
     ensure  => present,
+  }
+
+  package { $dependencies:
+    provider => 'pip',
+    ensure   => present,
   }
 
   file { '/etc/mysql/conf.d/max_connections.cnf':
