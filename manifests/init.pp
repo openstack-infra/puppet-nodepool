@@ -254,9 +254,9 @@ class nodepool (
 
   if $enable_image_log_via_http == true {
     # Setup apache for image log access
-    include apache
+    include ::httpd
 
-    apache::vhost { $vhost_name:
+    ::httpd::vhost { $vhost_name:
       port     => 80,
       priority => '50',
       docroot  => 'MEANINGLESS_ARGUMENT',
