@@ -3,14 +3,14 @@
 
   DocumentRoot <%= scope.lookupvar("nodepool::image_log_document_root") %>
   <Directory <%= scope.lookupvar("nodepool::image_log_document_root") %>>
-    Options <%= scope.lookupvar("httpd::params::options") %>
+    Options Indexes FollowSymLinks MultiViews
     AllowOverride None
     Require all granted
 </Directory>
 
-  ErrorLog /var/log/<%= scope.lookupvar("httpd::params::apache_name") %>/nodepool_error.log
+  ErrorLog /var/log/<%= scope.lookupvar("::apache::apache_name") %>/nodepool_error.log
   LogLevel warn
-  CustomLog /var/log/<%= scope.lookupvar("httpd::params::apache_name") %>/nodepool_access.log combined
+  CustomLog /var/log/<%= scope.lookupvar("::apache::apache_name") %>/nodepool_access.log combined
   ServerSignature Off
 
   AddType text/plain .log
