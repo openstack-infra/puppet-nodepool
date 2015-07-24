@@ -267,13 +267,12 @@ class nodepool (
 
   if $enable_image_log_via_http == true {
     # Setup apache for image log access
-    include ::httpd
+    include ::apache
 
-    ::httpd::vhost { $vhost_name:
-      port     => 80,
+    ::apache::custom_config { $vhost_name:
+      confdir  => $::apache::vhost_enable_dir,
+      content  => template('nodepool/nodepool-log.vhost.erb'),
       priority => '50',
-      docroot  => 'MEANINGLESS_ARGUMENT',
-      template => 'nodepool/nodepool-log.vhost.erb',
     }
   }
 
