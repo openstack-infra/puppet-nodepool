@@ -36,7 +36,7 @@ class nodepool (
 ) {
 
 
-  class { 'mysql::server':
+  class { '::mysql::server':
     config_hash => {
       'root_password'  => $mysql_root_password,
       'default_engine' => 'InnoDB',
@@ -44,8 +44,8 @@ class nodepool (
     }
   }
 
-  include mysql::server::account_security
-  include mysql::python
+  include ::mysql::server::account_security
+  include ::mysql::python
 
   mysql::db { 'nodepool':
     user     => 'nodepool',
@@ -101,9 +101,9 @@ class nodepool (
     source   => $git_source_repo,
   }
 
-  include diskimage_builder
+  include ::diskimage_builder
 
-  include pip
+  include ::pip
   exec { 'install_nodepool' :
     command     => 'pip install -U /opt/nodepool',
     path        => '/usr/local/bin:/usr/bin:/bin/',
@@ -265,11 +265,11 @@ class nodepool (
 
     if $image_log_document_root != '/var/log/nodepool' {
       file { $image_log_document_root:
-        ensure   => directory,
-        mode     => '0755',
-        owner    => 'nodepool',
-        group    => 'nodepool',
-        require  => [
+        ensure  => directory,
+        mode    => '0755',
+        owner   => 'nodepool',
+        group   => 'nodepool',
+        require => [
           User['nodepool'],
           File['/var/log/nodepool'],
         ],
