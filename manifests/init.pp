@@ -20,18 +20,18 @@
 class nodepool (
   $mysql_root_password,
   $mysql_password,
-  $nodepool_ssh_private_key = '',
+  $nodepool_ssh_private_key,
   $git_source_repo = 'https://git.openstack.org/openstack-infra/nodepool',
   $revision = 'master',
-  $statsd_host = '',
+  $statsd_host = undef,
   $vhost_name = $::fqdn,
   $image_log_document_root = '/var/log/nodepool/image',
   $enable_image_log_via_http = false,
   $environment = {},
   # enable sudo for nodepool user. Useful for using dib with nodepool
   $sudo = true,
-  $scripts_dir = '',
-  $elements_dir = '',
+  $scripts_dir = undef,
+  $elements_dir = undef,
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
 ) {
 
@@ -124,7 +124,7 @@ class nodepool (
     ensure => directory,
   }
 
-  if ($scripts_dir != '') {
+  if ($scripts_dir != undef) {
     file { '/etc/nodepool/scripts':
       ensure  => directory,
       owner   => 'root',
@@ -138,7 +138,7 @@ class nodepool (
     }
   }
 
-  if ($elements_dir != '') {
+  if ($elements_dir != undef) {
     file { '/etc/nodepool/elements':
       ensure  => directory,
       owner   => 'root',
