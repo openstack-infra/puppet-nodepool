@@ -276,18 +276,18 @@ class nodepool (
       docroot  => 'MEANINGLESS_ARGUMENT',
       template => 'nodepool/nodepool-log.vhost.erb',
     }
+  }
 
-    if $image_log_document_root != '/var/log/nodepool' {
-      file { $image_log_document_root:
-        ensure   => directory,
-        mode     => '0755',
-        owner    => 'nodepool',
-        group    => 'nodepool',
-        require  => [
-          User['nodepool'],
-          File['/var/log/nodepool'],
-        ],
-      }
+  if $image_log_document_root != '/var/log/nodepool' {
+    file { $image_log_document_root:
+      ensure   => directory,
+      mode     => '0755',
+      owner    => 'nodepool',
+      group    => 'nodepool',
+      require  => [
+        User['nodepool'],
+        File['/var/log/nodepool'],
+      ],
     }
   }
 
