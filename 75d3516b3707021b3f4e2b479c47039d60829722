@@ -1,0 +1,10 @@
+Verified+2: Jenkins
+Code-Review+2: Clark Boylan <cboylan@sapwetik.org>
+Code-Review+2: yolanda.robla <info@ysoft.biz>
+Workflow+1: yolanda.robla <info@ysoft.biz>
+Code-Review+1: Dong Ma <winterma.dong@gmail.com>
+Submitted-by: Jenkins
+Submitted-at: Tue, 25 Aug 2015 14:41:31 +0000
+Reviewed-on: https://review.openstack.org/216451
+Project: openstack-infra/puppet-nodepool
+Branch: refs/heads/master
