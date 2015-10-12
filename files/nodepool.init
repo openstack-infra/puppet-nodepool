@@ -78,11 +78,13 @@ do_stop()
 #
 do_graceful_stop()
 {
-	PID=`cat $PIDFILE`
-	kill -INT $PID
-	# Old nodepoold used USR1
-	# New nodepoold ignores it while INT is being handled
-	kill -USR1 $PID
+	if [ -e $PIDFILE ]; then
+		PID=`cat $PIDFILE`
+		kill -INT $PID
+		# Old nodepoold used USR1
+		# New nodepoold ignores it while INT is being handled
+		kill -USR1 $PID
+	fi
 
 	# wait until really stopped
 	if [ -n "${PID:-}" ]; then
