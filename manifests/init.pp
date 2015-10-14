@@ -46,7 +46,6 @@ class nodepool (
   }
 
   include ::mysql::server::account_security
-  include ::mysql::python
 
   mysql::db { 'nodepool':
     user     => 'nodepool',
