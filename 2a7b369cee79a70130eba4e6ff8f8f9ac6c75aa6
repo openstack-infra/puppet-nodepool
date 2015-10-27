@@ -1,0 +1,11 @@
+Verified+2: Jenkins
+Code-Review+1: Paul Belanger <pabelanger@redhat.com>
+Code-Review+2: yolanda.robla <info@ysoft.biz>
+Code-Review+2: Spencer Krum <nibz@spencerkrum.com>
+Workflow+1: Spencer Krum <nibz@spencerkrum.com>
+Code-Review+1: Danilo Ramalho <dramalho@thoughtworks.com>
+Submitted-by: Jenkins
+Submitted-at: Tue, 27 Oct 2015 22:36:54 +0000
+Reviewed-on: https://review.openstack.org/234958
+Project: openstack-infra/puppet-nodepool
+Branch: refs/heads/master
