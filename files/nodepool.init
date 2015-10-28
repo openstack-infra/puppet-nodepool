@@ -34,6 +34,17 @@ USER=nodepool
 . /lib/lsb/init-functions
 
 #
+# Get the status of the daemon process
+#
+get_daemon_status()
+{
+	# Return
+	#   0  if daemon is running
+	#   !0 if daemon is not running
+	status_of_proc "$DAEMON" "$NAME" >/dev/null 2>&1 || return $?
+}
+
+#
 # Function that starts the daemon/service
 #
 do_start()
@@ -78,11 +89,14 @@ do_stop()
 #
 do_graceful_stop()
 {
-	PID=`cat $PIDFILE`
-	kill -INT $PID
-	# Old nodepoold used USR1
-	# New nodepoold ignores it while INT is being handled
-	kill -USR1 $PID
+	get_daemon_status
+	if [ $? -eq 0 ]; then
+		PID=`pidof -o %PPID -x $DAEMON`
+		kill -INT $PID
+		# Old nodepoold used USR1
+		# New nodepoold ignores it while INT is being handled
+		kill -USR1 $PID
+	fi
 
 	# wait until really stopped
 	if [ -n "${PID:-}" ]; then
