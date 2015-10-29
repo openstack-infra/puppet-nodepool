@@ -36,6 +36,9 @@ class nodepool (
   $jenkins_masters = [],
 ) {
 
+  class { ::nodepool::install:
+    revision => $revision,
+  }
 
   class { '::mysql::server':
     config_hash => {
@@ -59,69 +62,12 @@ class nodepool (
     ],
   }
 
-  $packages = [
-    'build-essential',
-    'libffi-dev',
-    'libssl-dev',
-    'libgmp-dev',         # transitive dep of paramiko
-    # xml2 and xslt are needed to build python lxml.
-    'libxml2-dev',
-    'libxslt-dev',
-  ]
-
-  package { $packages:
-    ensure  => present,
-  }
-
   file { '/etc/mysql/conf.d/max_connections.cnf':
     ensure  => present,
     content => "[server]\nmax_connections = 8192\n",
     mode    => '0444',
     owner   => 'root',
     group   => 'root',
-  }
-
-  user { 'nodepool':
-    ensure     => present,
-    home       => '/home/nodepool',
-    shell      => '/bin/bash',
-    gid        => 'nodepool',
-    managehome => true,
-    require    => Group['nodepool'],
-  }
-
-  group { 'nodepool':
-    ensure => present,
-  }
-
-  vcsrepo { '/opt/nodepool':
-    ensure   => latest,
-    provider => git,
-    revision => $revision,
-    source   => $git_source_repo,
-  }
-
-  include ::diskimage_builder
-
-  include ::pip
-  exec { 'install_nodepool' :
-    command     => 'pip install -U /opt/nodepool',
-    path        => '/usr/local/bin:/usr/bin:/bin/',
-    refreshonly => true,
-    subscribe   => Vcsrepo['/opt/nodepool'],
-    require     => [
-      Class['pip'],
-      Package['build-essential'],
-      Package['libffi-dev'],
-      Package['libssl-dev'],
-      Package['libxml2-dev'],
-      Package['libxslt-dev'],
-      Package['libgmp-dev'],
-    ],
-  }
-
-  file { '/etc/nodepool':
-    ensure => directory,
   }
 
   if ($scripts_dir != undef) {
@@ -160,48 +106,6 @@ class nodepool (
     group   => 'root',
   }
 
-  # used for storage of d-i-b images in non-ephemeral partition
-  file { '/opt/nodepool_dib':
-    ensure  => directory,
-    mode    => '0755',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
-  }
-
-  # used for storage of d-i-b cached data
-  file { '/opt/dib_cache':
-    ensure  => directory,
-    mode    => '0755',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
-  }
-
-  # used as TMPDIR during d-i-b image builds
-  file { '/opt/dib_tmp':
-    ensure  => directory,
-    mode    => '0755',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
-  }
-
-  file { '/var/log/nodepool':
-    ensure  => directory,
-    mode    => '0755',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
-  }
-
-  file { '/var/run/nodepool':
-    ensure  => directory,
-    mode    => '0755',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
-  }
 
   file { '/home/nodepool/.ssh':
     ensure  => directory,
