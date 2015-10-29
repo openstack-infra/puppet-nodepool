@@ -33,6 +33,7 @@ class nodepool (
   $scripts_dir = undef,
   $elements_dir = undef,
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
+  $logging_conf = undef,
   $jenkins_masters = [],
 ) {
 
@@ -229,12 +230,22 @@ class nodepool (
     require => File['/home/nodepool/.ssh'],
   }
 
-  file { '/etc/nodepool/logging.conf':
-    ensure  => present,
-    mode    => '0444',
-    owner   => 'root',
-    group   => 'root',
-    content => template($logging_conf_template),
+  if $logging_conf == undef {
+    file { '/etc/nodepool/logging.conf':
+      ensure  => present,
+      mode    => '0444',
+      owner   => 'root',
+      group   => 'root',
+      content => template($logging_conf_template),
+    }
+  } else {
+    file { '/etc/nodepool/logging.conf':
+      ensure  => present,
+      mode    => '0444',
+      owner   => 'root',
+      group   => 'root',
+      source  => $logging_conf,
+    }
   }
 
   validate_array($jenkins_masters)
