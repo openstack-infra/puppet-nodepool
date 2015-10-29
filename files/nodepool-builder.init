@@ -1,11 +1,11 @@
 #! /bin/sh
 ### BEGIN INIT INFO
-# Provides:          nodepool
+# Provides:          nodepool-builder
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Nodepool
+# Short-Description: Nodepool-builder
 # Description:       Trunk gating system
 ### END INIT INFO
 
@@ -13,10 +13,9 @@
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin
-DESC="Nodepool"
-NAME=nodepool
-DAEMON=/usr/local/bin/nodepoold
-DAEMON_ARGS='--no-builder'
+DESC="Nodepool Builder Worker"
+NAME=nodepool-builder
+DAEMON=/usr/local/bin/nodepool-builder
 PIDFILE=/var/run/$NAME/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 USER=nodepool
