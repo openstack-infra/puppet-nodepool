@@ -34,7 +34,10 @@ class nodepool (
   $elements_dir = undef,
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
   $jenkins_masters = [],
+  $builder_workers = false,
 ) {
+
+  validate_bool($builder_workers)
 
 
   class { '::mysql::server':
@@ -302,6 +305,25 @@ class nodepool (
     owner  => 'root',
     group  => 'root',
     mode   => '0440',
+  }
+
+  # builder workers
+  if $builder_workers {
+
+    file { '/etc/init.d/nodepool-builder':
+      ensure => present,
+      mode   => '0555',
+      owner  => 'root',
+      group  => 'root',
+      source => 'puppet:///modules/nodepool/nodepool-builder.init',
+    }
+
+    service { 'nodepool-builder':
+      name       => 'nodepool-builder',
+      enable     => true,
+      hasrestart => true,
+      require    => File['/etc/init.d/nodepool-builder'],
+    }
   }
 
 }
