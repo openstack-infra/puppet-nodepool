@@ -36,13 +36,15 @@ class nodepool (
   $jenkins_masters = [],
 ) {
 
-
   class { '::mysql::server':
-    config_hash => {
-      'root_password'  => $mysql_root_password,
-      'default_engine' => 'InnoDB',
-      'bind_address'   => '127.0.0.1',
-    }
+    root_password    => $mysql_root_password,
+    override_options => {
+      'mysqld' => {
+        'bind-address'           => '127.0.0.1',
+        'default-storage-engine' => 'InnoDB',
+        'max_connections'        => '8192',
+      },
+    },
   }
 
   include ::mysql::server::account_security
@@ -74,11 +76,7 @@ class nodepool (
   }
 
   file { '/etc/mysql/conf.d/max_connections.cnf':
-    ensure  => present,
-    content => "[server]\nmax_connections = 8192\n",
-    mode    => '0444',
-    owner   => 'root',
-    group   => 'root',
+    ensure  => absent,
   }
 
   user { 'nodepool':
