@@ -316,4 +316,9 @@ class nodepool (
     mode   => '0440',
   }
 
+  class { '::nodepool::builder':
+    statsd_host => $statsd_host,
+    environment => $environment,
+  }
+
 }
