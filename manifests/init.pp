@@ -33,6 +33,7 @@ class nodepool (
   $scripts_dir = undef,
   $elements_dir = undef,
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
+  $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
   $jenkins_masters = [],
 ) {
 
@@ -314,6 +315,12 @@ class nodepool (
     owner  => 'root',
     group  => 'root',
     mode   => '0440',
+  }
+
+  class { '::nodepool::builder':
+    statsd_host                   => $statsd_host,
+    environment                   => $environment,
+    builder_logging_conf_template => $builder_logging_conf_template,
   }
 
 }
