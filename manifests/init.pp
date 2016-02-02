@@ -32,6 +32,7 @@ class nodepool (
   $sudo = true,
   $scripts_dir = undef,
   $elements_dir = undef,
+  $use_dib_from_git = false,
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
   $jenkins_masters = [],
@@ -114,7 +115,9 @@ class nodepool (
     source   => $git_source_repo,
   }
 
-  include ::diskimage_builder
+  class { '::diskimage_builder':
+    use_git => $use_dib_from_git,
+  }
 
   include ::pip
   exec { 'install_nodepool' :
