@@ -26,6 +26,7 @@ class nodepool (
   $statsd_host = undef,
   $vhost_name = $::fqdn,
   $image_log_document_root = '/var/log/nodepool/image',
+  $image_log_periodic_cleanup = false,
   $enable_image_log_via_http = false,
   $environment = {},
   # enable sudo for nodepool user. Useful for using dib with nodepool
@@ -300,6 +301,17 @@ class nodepool (
         User['nodepool'],
         File['/var/log/nodepool'],
       ],
+    }
+  }
+
+  # run a cleanup on the image log directory to cleanup logs for
+  # images that are no longer being built
+  if $image_log_periodic_cleanup == true {
+    cron { 'image_log_cleanup':
+      user => 'nodepool',
+      hour => '1',
+      minute => '0',
+      command => "find $image_log_document_root -name \'*.log\' -mtime +7 -execdir rm {} \;",
     }
   }
 
