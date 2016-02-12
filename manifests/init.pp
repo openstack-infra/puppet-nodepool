@@ -311,7 +311,7 @@ class nodepool (
       user        => 'nodepool',
       hour        => '1',
       minute      => '0',
-      command     => "find ${image_log_document_root} \( -name '*.log' -o -name '*.log.*' \) -mtime +7 -execdir rm {} \\;",
+      command     => "find ${image_log_document_root} \\( -name '*.log' -o -name '*.log.*' \\) -mtime +7 -execdir rm {} \\;",
       environment => 'PATH=/usr/bin:/bin:/usr/sbin:/sbin',
     }
   }
