@@ -15,10 +15,10 @@
 # == Class: nodepool::builder
 #
 class nodepool::builder(
-  $statsd_host = undef,
-  $image_log_document_root = '/var/log/nodepool/image',
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
-  $environment = {},
+  $environment                   = {},
+  $image_log_document_root       = '/var/log/nodepool/image',
+  $statsd_host                   = undef,
 ) {
 
   file { '/etc/init.d/nodepool-builder':

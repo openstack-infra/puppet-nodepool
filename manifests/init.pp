@@ -18,24 +18,24 @@
 # == Class: nodepool
 #
 class nodepool (
-  $mysql_root_password,
   $mysql_password,
+  $mysql_root_password,
   $nodepool_ssh_private_key,
-  $git_source_repo = 'https://git.openstack.org/openstack-infra/nodepool',
-  $revision = 'master',
-  $statsd_host = undef,
-  $vhost_name = $::fqdn,
-  $image_log_document_root = '/var/log/nodepool/image',
-  $image_log_periodic_cleanup = false,
-  $enable_image_log_via_http = false,
-  $environment = {},
-  # enable sudo for nodepool user. Useful for using dib with nodepool
-  $sudo = true,
-  $scripts_dir = undef,
-  $elements_dir = undef,
-  $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
-  $jenkins_masters = [],
+  $elements_dir                  = undef,
+  $enable_image_log_via_http     = false,
+  $environment                   = {},
+  $git_source_repo               = 'https://git.openstack.org/openstack-infra/nodepool',
+  $image_log_document_root       = '/var/log/nodepool/image',
+  $image_log_periodic_cleanup    = false,
+  $jenkins_masters               = [],
+  $logging_conf_template         = 'nodepool/nodepool.logging.conf.erb',
+  $revision                      = 'master',
+  $scripts_dir                   = undef,
+  $statsd_host                   = undef,
+  # enable sudo for nodepool user. Useful for using dib with nodepool
+  $sudo                          = true,
+  $vhost_name                    = $::fqdn,
 ) {
 
 
