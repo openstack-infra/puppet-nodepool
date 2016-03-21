@@ -15,12 +15,12 @@
 # == Class: nodepool::builder
 #
 class nodepool::builder(
-  $statsd_host = undef,
-  $image_log_document_root = '/var/log/nodepool/image',
+  $build_workers                 = '1',
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
-  $environment = {},
-  $build_workers = '1',
-  $upload_workers = '4',
+  $environment                   = {},
+  $image_log_document_root       = '/var/log/nodepool/image',
+  $statsd_host                   = undef,
+  $upload_workers                = '4',
 ) {
 
   file { '/etc/init.d/nodepool-builder':
