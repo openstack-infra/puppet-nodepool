@@ -18,60 +18,26 @@
 # == Class: nodepool
 #
 class nodepool (
-  $mysql_root_password,
-  $mysql_password,
-  $nodepool_ssh_private_key,
-  $git_source_repo = 'https://git.openstack.org/openstack-infra/nodepool',
-  $revision = 'master',
-  $statsd_host = undef,
-  $vhost_name = $::fqdn,
-  $image_log_document_root = '/var/log/nodepool/image',
-  $image_log_periodic_cleanup = false,
-  $enable_image_log_via_http = false,
-  $environment = {},
-  # enable sudo for nodepool user. Useful for using dib with nodepool
-  $sudo = true,
-  $scripts_dir = undef,
-  $elements_dir = undef,
-  $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
+  $mysql_user_password,
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
-  $jenkins_masters = [],
+  $elements_dir                  = undef,
+  $enable_image_log_via_http     = false,
+  $environment                   = {},
+  $git_source_repo               = 'https://git.openstack.org/openstack-infra/nodepool',
+  $image_log_document_root       = '/var/log/nodepool/image',
+  $image_log_periodic_cleanup    = false,
+  $jenkins_masters               = [],
+  $logging_conf_template         = 'nodepool/nodepool.logging.conf.erb',
+  $mysql_db_name                 = 'nodepool',
+  $mysql_host                    = 'localhost',
+  $mysql_user_name               = 'nodepool',
+  $revision                      = 'master',
+  $scripts_dir                   = undef,
+  $statsd_host                   = undef,
+  # enable sudo for nodepool user. Useful for using dib with nodepool
+  $sudo                          = true,
+  $vhost_name                    = $::fqdn,
 ) {
-
-
-  $mysql_data = load_module_metadata('mysql', true)
-  if $mysql_data == {} {
-    class { '::mysql::server':
-      config_hash => {
-        'root_password'  => $mysql_root_password,
-        'default_engine' => 'InnoDB',
-        'bind_address'   => '127.0.0.1',
-      }
-    }
-  } else { # If it has metadata.json, assume it's new enough to use this interface
-    class { '::mysql::server':
-      root_password    => $mysql_root_password,
-      override_options => {
-        'mysqld' => {
-          'default-storage-engine' => 'InnoDB',
-        }
-      },
-    }
-  }
-
-  include ::mysql::server::account_security
-
-  mysql::db { 'nodepool':
-    user     => 'nodepool',
-    password => $mysql_password,
-    host     => 'localhost',
-    grant    => ['all'],
-    charset  => 'utf8',
-    require  => [
-      Class['mysql::server'],
-      Class['mysql::server::account_security'],
-    ],
-  }
 
   $packages = [
     'build-essential',
@@ -85,14 +51,6 @@ class nodepool (
 
   package { $packages:
     ensure  => present,
-  }
-
-  file { '/etc/mysql/conf.d/max_connections.cnf':
-    ensure  => present,
-    content => "[server]\nmax_connections = 8192\n",
-    mode    => '0444',
-    owner   => 'root',
-    group   => 'root',
   }
 
   user { 'nodepool':
@@ -138,7 +96,7 @@ class nodepool (
     ensure => directory,
   }
 
-  if ($scripts_dir != undef) {
+  if ($scripts_dir) {
     file { '/etc/nodepool/scripts':
       ensure  => directory,
       owner   => 'root',
@@ -152,7 +110,7 @@ class nodepool (
     }
   }
 
-  if ($elements_dir != undef) {
+  if ($elements_dir) {
     file { '/etc/nodepool/elements':
       ensure  => directory,
       owner   => 'root',
@@ -273,13 +231,14 @@ class nodepool (
   }
 
   service { 'nodepool':
+    ensure     => 'running',
     name       => 'nodepool',
     enable     => true,
     hasrestart => true,
     require    => File['/etc/init.d/nodepool'],
   }
 
-  if $enable_image_log_via_http == true {
+  if ($enable_image_log_via_http) {
     # Setup apache for image log access
     include ::httpd
 
@@ -291,7 +250,7 @@ class nodepool (
     }
   }
 
-  if $image_log_document_root != '/var/log/nodepool' {
+  if ($image_log_document_root != '/var/log/nodepool') {
     file { $image_log_document_root:
       ensure  => directory,
       mode    => '0755',
@@ -306,7 +265,7 @@ class nodepool (
 
   # run a cleanup on the image log directory to cleanup logs for
   # images that are no longer being built
-  if $image_log_periodic_cleanup == true {
+  if ($image_log_periodic_cleanup) {
     cron { 'image_log_cleanup':
       user        => 'nodepool',
       hour        => '1',
@@ -316,7 +275,7 @@ class nodepool (
     }
   }
 
-  if $sudo == true {
+  if ($sudo) {
     $sudo_file_ensure = present
   }
   else {
@@ -331,9 +290,9 @@ class nodepool (
   }
 
   class { '::nodepool::builder':
-    statsd_host                   => $statsd_host,
-    environment                   => $environment,
     builder_logging_conf_template => $builder_logging_conf_template,
+    environment                   => $environment,
+    statsd_host                   => $statsd_host,
   }
 
 }
