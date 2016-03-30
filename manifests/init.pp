@@ -18,60 +18,30 @@
 # == Class: nodepool
 #
 class nodepool (
-  $mysql_root_password,
-  $mysql_password,
-  $nodepool_ssh_private_key,
-  $git_source_repo = 'https://git.openstack.org/openstack-infra/nodepool',
-  $revision = 'master',
-  $statsd_host = undef,
-  $vhost_name = $::fqdn,
-  $image_log_document_root = '/var/log/nodepool/image',
-  $image_log_periodic_cleanup = false,
-  $enable_image_log_via_http = false,
-  $environment = {},
-  # enable sudo for nodepool user. Useful for using dib with nodepool
-  $sudo = true,
-  $scripts_dir = undef,
-  $elements_dir = undef,
-  $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
+  $mysql_user_password,
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
-  $jenkins_masters = [],
+  $elements_dir                  = undef,
+  $enable_image_log_via_http     = false,
+  $environment                   = {},
+  $git_source_repo               = 'https://git.openstack.org/openstack-infra/nodepool',
+  $image_log_document_root       = '/var/log/nodepool/image',
+  $image_log_periodic_cleanup    = false,
+  $jenkins_masters               = [],
+  $logging_conf_template         = 'nodepool/nodepool.logging.conf.erb',
+  $mysql_db_name                 = 'nodepool',
+  $mysql_host                    = 'localhost',
+  $mysql_user_name               = 'nodepool',
+  $nodepool_ssh_private_key      = undef,
+  $revision                      = 'master',
+  $scripts_dir                   = undef,
+  $statsd_host                   = undef,
+  # by default statsd used 8125 port
+  $statsd_port                   = undef,
+  # enable sudo for nodepool user. Useful for using dib with nodepool
+  $sudo                          = true,
+  $user                          = 'nodepool',
+  $vhost_name                    = $::fqdn,
 ) {
-
-
-  $mysql_data = load_module_metadata('mysql', true)
-  if $mysql_data == {} {
-    class { '::mysql::server':
-      config_hash => {
-        'root_password'  => $mysql_root_password,
-        'default_engine' => 'InnoDB',
-        'bind_address'   => '127.0.0.1',
-      }
-    }
-  } else { # If it has metadata.json, assume it's new enough to use this interface
-    class { '::mysql::server':
-      root_password    => $mysql_root_password,
-      override_options => {
-        'mysqld' => {
-          'default-storage-engine' => 'InnoDB',
-        }
-      },
-    }
-  }
-
-  include ::mysql::server::account_security
-
-  mysql::db { 'nodepool':
-    user     => 'nodepool',
-    password => $mysql_password,
-    host     => 'localhost',
-    grant    => ['all'],
-    charset  => 'utf8',
-    require  => [
-      Class['mysql::server'],
-      Class['mysql::server::account_security'],
-    ],
-  }
 
   $packages = [
     'build-essential',
@@ -83,29 +53,21 @@ class nodepool (
     'libxslt-dev',
   ]
 
-  package { $packages:
+  package { $packages :
     ensure  => present,
   }
 
-  file { '/etc/mysql/conf.d/max_connections.cnf':
-    ensure  => present,
-    content => "[server]\nmax_connections = 8192\n",
-    mode    => '0444',
-    owner   => 'root',
-    group   => 'root',
+  group { $user :
+    ensure => present,
   }
 
-  user { 'nodepool':
+  user { $user :
     ensure     => present,
     home       => '/home/nodepool',
     shell      => '/bin/bash',
-    gid        => 'nodepool',
+    gid        => $user,
     managehome => true,
-    require    => Group['nodepool'],
-  }
-
-  group { 'nodepool':
-    ensure => present,
+    require    => Group[$user],
   }
 
   vcsrepo { '/opt/nodepool':
@@ -134,12 +96,12 @@ class nodepool (
     ],
   }
 
-  file { '/etc/nodepool':
+  file { '/etc/nodepool' :
     ensure => directory,
   }
 
-  if ($scripts_dir != undef) {
-    file { '/etc/nodepool/scripts':
+  if ($scripts_dir) {
+    file { '/etc/nodepool/scripts' :
       ensure  => directory,
       owner   => 'root',
       group   => 'root',
@@ -152,8 +114,8 @@ class nodepool (
     }
   }
 
-  if ($elements_dir != undef) {
-    file { '/etc/nodepool/elements':
+  if ($elements_dir) {
+    file { '/etc/nodepool/elements' :
       ensure  => directory,
       owner   => 'root',
       group   => 'root',
@@ -166,7 +128,7 @@ class nodepool (
     }
   }
 
-  file { '/etc/default/nodepool':
+  file { '/etc/default/nodepool' :
     ensure  => present,
     content => template('nodepool/nodepool.default.erb'),
     mode    => '0444',
@@ -175,75 +137,77 @@ class nodepool (
   }
 
   # used for storage of d-i-b images in non-ephemeral partition
-  file { '/opt/nodepool_dib':
+  file { '/opt/nodepool_dib' :
     ensure  => directory,
     mode    => '0755',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
+    owner   => $user,
+    group   => $user,
+    require => User[$user],
   }
 
   # used for storage of d-i-b cached data
-  file { '/opt/dib_cache':
+  file { '/opt/dib_cache' :
     ensure  => directory,
     mode    => '0755',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
+    owner   => $user,
+    group   => $user,
+    require => User[$user],
   }
 
   # used as TMPDIR during d-i-b image builds
-  file { '/opt/dib_tmp':
+  file { '/opt/dib_tmp' :
     ensure  => directory,
     mode    => '0755',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
+    owner   => $user,
+    group   => $user,
+    require => User[$user],
   }
 
-  file { '/var/log/nodepool':
+  file { '/var/log/nodepool' :
     ensure  => directory,
     mode    => '0755',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
+    owner   => $user,
+    group   => $user,
+    require => User[$user],
   }
 
-  file { '/var/run/nodepool':
+  file { '/var/run/nodepool' :
     ensure  => directory,
     mode    => '0755',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
+    owner   => $user,
+    group   => $user,
+    require => User[$user],
   }
 
-  file { '/home/nodepool/.ssh':
+  file { '/home/nodepool/.ssh' :
     ensure  => directory,
     mode    => '0500',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
+    owner   => $user,
+    group   => $user,
+    require => User[$user],
   }
 
-  file { '/home/nodepool/.ssh/id_rsa':
-    ensure  => present,
-    content => $nodepool_ssh_private_key,
-    mode    => '0400',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => File['/home/nodepool/.ssh'],
+  if($nodepool_ssh_private_key) {
+    file { '/home/nodepool/.ssh/id_rsa' :
+      ensure  => present,
+      content => $nodepool_ssh_private_key,
+      mode    => '0400',
+      owner   => $user,
+      group   => $user,
+      require => File['/home/nodepool/.ssh'],
+    }
   }
 
-  file { '/home/nodepool/.ssh/config':
+  file { '/home/nodepool/.ssh/config' :
     ensure  => present,
     source  => 'puppet:///modules/nodepool/ssh.config',
     mode    => '0440',
-    owner   => 'nodepool',
-    group   => 'nodepool',
+    owner   => $user,
+    group   => $user,
     require => File['/home/nodepool/.ssh'],
   }
 
-  file { '/etc/nodepool/logging.conf':
+  file { '/etc/nodepool/logging.conf' :
     ensure  => present,
     mode    => '0444',
     owner   => 'root',
@@ -252,10 +216,10 @@ class nodepool (
   }
 
   validate_array($jenkins_masters)
-  file { '/etc/nodepool/secure.conf':
+  file { '/etc/nodepool/secure.conf' :
     ensure  => present,
-    owner   => 'nodepool',
-    group   => 'root',
+    owner   => $user,
+    group   => $user,
     mode    => '0400',
     content => template('nodepool/secure.conf.erb'),
     require => [
@@ -264,7 +228,7 @@ class nodepool (
     ],
   }
 
-  file { '/etc/init.d/nodepool':
+  file { '/etc/init.d/nodepool' :
     ensure => present,
     mode   => '0555',
     owner  => 'root',
@@ -272,14 +236,15 @@ class nodepool (
     source => 'puppet:///modules/nodepool/nodepool.init',
   }
 
-  service { 'nodepool':
+  service { 'nodepool' :
+    ensure     => 'running',
     name       => 'nodepool',
     enable     => true,
     hasrestart => true,
     require    => File['/etc/init.d/nodepool'],
   }
 
-  if $enable_image_log_via_http == true {
+  if ($enable_image_log_via_http) {
     # Setup apache for image log access
     include ::httpd
 
@@ -291,12 +256,12 @@ class nodepool (
     }
   }
 
-  if $image_log_document_root != '/var/log/nodepool' {
-    file { $image_log_document_root:
+  if ($image_log_document_root != '/var/log/nodepool') {
+    file { $image_log_document_root :
       ensure  => directory,
       mode    => '0755',
-      owner   => 'nodepool',
-      group   => 'nodepool',
+      owner   => $user,
+      group   => $user,
       require => [
         User['nodepool'],
         File['/var/log/nodepool'],
@@ -306,9 +271,9 @@ class nodepool (
 
   # run a cleanup on the image log directory to cleanup logs for
   # images that are no longer being built
-  if $image_log_periodic_cleanup == true {
-    cron { 'image_log_cleanup':
-      user        => 'nodepool',
+  if ($image_log_periodic_cleanup) {
+    cron { 'image_log_cleanup' :
+      user        => $user,
       hour        => '1',
       minute      => '0',
       command     => "find ${image_log_document_root} \\( -name '*.log' -o -name '*.log.*' \\) -mtime +7 -execdir rm {} \\;",
@@ -316,13 +281,13 @@ class nodepool (
     }
   }
 
-  if $sudo == true {
+  if ($sudo) {
     $sudo_file_ensure = present
   }
   else {
     $sudo_file_ensure = absent
   }
-  file { '/etc/sudoers.d/nodepool-sudo':
+  file { '/etc/sudoers.d/nodepool-sudo' :
     ensure => $sudo_file_ensure,
     source => 'puppet:///modules/nodepool/nodepool-sudo.sudo',
     owner  => 'root',
@@ -330,10 +295,10 @@ class nodepool (
     mode   => '0440',
   }
 
-  class { '::nodepool::builder':
-    statsd_host                   => $statsd_host,
-    environment                   => $environment,
+  class { '::nodepool::builder' :
     builder_logging_conf_template => $builder_logging_conf_template,
+    environment                   => $environment,
+    statsd_host                   => $statsd_host,
   }
 
 }

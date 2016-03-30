@@ -1,8 +1,10 @@
 <% if @statsd_host != nil && @statsd_host != "" -%>
-export STATSD_HOST=<%= @statsd_host %>
-export STATSD_PORT=8125
+export STATSD_HOST="<%= @statsd_host %>"
+<% end -%>
+<% if @statsd_port != nil && @statsd_port != "" -%>
+export STATSD_PORT="<%= @statsd_port %>"
 <% end -%>
 <% @environment.keys.sort.each do |key| -%>
-export <%= key %>='<%= @environment[key] %>'
+export <%= key %>="<%= @environment[key] %>"
 <% end -%>
 DAEMON_ARGS="--no-builder -c /etc/nodepool/nodepool.yaml -l /etc/nodepool/logging.conf"
