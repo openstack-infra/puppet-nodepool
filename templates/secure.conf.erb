@@ -1,5 +1,5 @@
 [database]
-dburi=mysql+pymysql://nodepool:<%= @mysql_password %>@localhost/nodepool
+dburi=mysql+pymysql://<%= @mysql_user_name %>:<%= @mysql_user_password %>@<%= @mysql_host %>/<%= @mysql_db_name %>
 
 <% @jenkins_masters.each do |master| -%>
 [jenkins "<%= master['name'] -%>"]
