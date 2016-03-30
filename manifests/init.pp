@@ -36,41 +36,22 @@ class nodepool (
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
   $jenkins_masters = [],
+  # FIXME: temporary variable
+  $install_mysql = true,
+  # /FIXME.
+  # used for populating secure.conf:
+  $mysql_db_name = 'nodepool',
+  $mysql_host = 'localhost',
+  $mysql_user_name = 'nodepool',
 ) {
 
-
-  $mysql_data = load_module_metadata('mysql', true)
-  if $mysql_data == {} {
-    class { '::mysql::server':
-      config_hash => {
-        'root_password'  => $mysql_root_password,
-        'default_engine' => 'InnoDB',
-        'bind_address'   => '127.0.0.1',
-      }
+  if($install_mysql) {
+    class { '::nodepool::mysql' :
+      mysql_db_name       => $mysql_db_name,
+      mysql_root_password => $mysql_root_password,
+      mysql_user_name     => $mysql_user_name,
+      mysql_user_password => $mysql_password,
     }
-  } else { # If it has metadata.json, assume it's new enough to use this interface
-    class { '::mysql::server':
-      root_password    => $mysql_root_password,
-      override_options => {
-        'mysqld' => {
-          'default-storage-engine' => 'InnoDB',
-        }
-      },
-    }
-  }
-
-  include ::mysql::server::account_security
-
-  mysql::db { 'nodepool':
-    user     => 'nodepool',
-    password => $mysql_password,
-    host     => 'localhost',
-    grant    => ['all'],
-    charset  => 'utf8',
-    require  => [
-      Class['mysql::server'],
-      Class['mysql::server::account_security'],
-    ],
   }
 
   $packages = [
@@ -85,14 +66,6 @@ class nodepool (
 
   package { $packages:
     ensure  => present,
-  }
-
-  file { '/etc/mysql/conf.d/max_connections.cnf':
-    ensure  => present,
-    content => "[server]\nmax_connections = 8192\n",
-    mode    => '0444',
-    owner   => 'root',
-    group   => 'root',
   }
 
   user { 'nodepool':
