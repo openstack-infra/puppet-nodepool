@@ -36,6 +36,8 @@ class nodepool (
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
   $jenkins_masters = [],
+  $build_workers = '1',
+  $upload_workers = '4',
 ) {
 
 
@@ -334,6 +336,7 @@ class nodepool (
     statsd_host                   => $statsd_host,
     environment                   => $environment,
     builder_logging_conf_template => $builder_logging_conf_template,
+    build_workers                 => $build_workers,
+    upload_workers                => $upload_workers,
   }
-
 }
