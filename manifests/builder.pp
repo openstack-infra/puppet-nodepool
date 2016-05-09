@@ -19,6 +19,8 @@ class nodepool::builder(
   $image_log_document_root = '/var/log/nodepool/image',
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
   $environment = {},
+  $build_workers = '1',
+  $upload_workers = '4',
 ) {
 
   file { '/etc/init.d/nodepool-builder':
