@@ -21,6 +21,7 @@ class nodepool (
   $mysql_root_password,
   $mysql_password,
   $nodepool_ssh_private_key,
+  $nodepool_ssh_public_key = undef,
   $git_source_repo = 'https://git.openstack.org/openstack-infra/nodepool',
   $revision = 'master',
   $statsd_host = undef,
@@ -234,6 +235,17 @@ class nodepool (
     owner   => 'nodepool',
     group   => 'nodepool',
     require => File['/home/nodepool/.ssh'],
+  }
+
+  if ($nodepool_ssh_public_key != undef) {
+    file { '/home/nodepool/.ssh/id_rsa.pub':
+      ensure  => present,
+      content => $nodepool_ssh_public_key,
+      mode    => '0644',
+      owner   => 'nodepool',
+      group   => 'nodepool',
+      require => File['/home/nodepool/.ssh'],
+    }
   }
 
   file { '/home/nodepool/.ssh/config':
