@@ -65,9 +65,7 @@ class nodepool (
     'libxslt-dev',
   ]
 
-  package { $packages:
-    ensure  => present,
-  }
+  ensure_packages($packages, {'ensure' => 'present'})
 
   file { '/etc/mysql/conf.d/max_connections.cnf':
     ensure  => present,
