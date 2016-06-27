@@ -20,8 +20,13 @@
 class nodepool (
   $mysql_root_password,
   $mysql_password,
+  # This is the key nodepool uses to log into a host and prepare it.
+  # It is deployed via configdrive to the newly booted worker.
   $nodepool_ssh_private_key,
-  $nodepool_ssh_public_key = undef,
+  # This public key will be passed to the zuul-worker DIB element
+  # during image-build and placed into authorized_keys; it is used by
+  # zuul-workers to log into the new worker.
+  $zuul_worker_public_key = undef,
   $git_source_repo = 'https://git.openstack.org/openstack-infra/nodepool',
   $revision = 'master',
   $statsd_host = undef,
@@ -214,14 +219,14 @@ class nodepool (
     require => File['/home/nodepool/.ssh'],
   }
 
-  if ($nodepool_ssh_public_key != undef) {
-    file { '/home/nodepool/.ssh/id_rsa.pub':
+  if ($zuul_worker_ssh_public_key != undef) {
+    file { '/var/run/nodepool/zuul_worker_id_rsa.pub':
       ensure  => present,
-      content => $nodepool_ssh_public_key,
+      content => $zuul_worker_ssh_public_key,
       mode    => '0644',
       owner   => 'nodepool',
       group   => 'nodepool',
-      require => File['/home/nodepool/.ssh'],
+      require => File['/var/run/nodepool'],
     }
   }
 
