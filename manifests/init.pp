@@ -17,10 +17,33 @@
 
 # == Class: nodepool
 #
+# This class setups a nodepool host
+#
+# === Parameters
+#
+# [*nodepool_ssh_private_key*]
+#   This is the key nodepool uses to log into a host and prepare it.
+#   It is deployed via configdrive to the newly booted worker.
+#
+# [*zuul_worker_ssh_public_key*]
+#   This is the public key for zuul-launcher to log into a new host
+#   when it is attached.  This public key will be stored in
+#   /var/run/nodepool/zuul_worker_id_rsa.pub on the nodepool host.  It
+#   should be passed to the zuul-worker DIB element (see
+#   project-config:nodepool/elements/zuul-worker) via the
+#   ZUUL_USER_SSH_PUBLIC_KEY environment variable for embedding during
+#   image build.  If you are not using zuul-worker, leave it undef
+#
+# [*nodepool_ssh_public_key*]
+#   Deprecated for zuul_worker_ssh_public_key
+#
+# [*sudo*]
+#   Enable sudo for nodepool user. Useful for using dib with nodepool
 class nodepool (
   $mysql_root_password,
   $mysql_password,
   $nodepool_ssh_private_key,
+  $zuul_worker_ssh_public_key = undef,
   $nodepool_ssh_public_key = undef,
   $git_source_repo = 'https://git.openstack.org/openstack-infra/nodepool',
   $revision = 'master',
@@ -30,7 +53,6 @@ class nodepool (
   $image_log_periodic_cleanup = false,
   $enable_image_log_via_http = false,
   $environment = {},
-  # enable sudo for nodepool user. Useful for using dib with nodepool
   $sudo = true,
   $scripts_dir = undef,
   $elements_dir = undef,
@@ -214,14 +236,22 @@ class nodepool (
     require => File['/home/nodepool/.ssh'],
   }
 
-  if ($nodepool_ssh_public_key != undef) {
-    file { '/home/nodepool/.ssh/id_rsa.pub':
+  if $nodepool_ssh_public_key {
+    # Deprecated 06-2016; can likely be removed
+    warning('The nodepool_ssh_public_key parameter has been replaced by zuul_worker_ssh_public_key')
+    $_zuul_worker_ssh_public_key = $nodepool_ssh_public_key
+  } else {
+    $_zuul_worker_ssh_public_key = $zuul_worker_ssh_public_key
+  }
+
+  if ($_zuul_worker_ssh_public_key != undef) {
+    file { '/var/run/nodepool/zuul_worker_id_rsa.pub':
       ensure  => present,
-      content => $nodepool_ssh_public_key,
+      content => $_zuul_worker_ssh_public_key,
       mode    => '0644',
       owner   => 'nodepool',
       group   => 'nodepool',
-      require => File['/home/nodepool/.ssh'],
+      require => File['/var/run/nodepool'],
     }
   }
 
