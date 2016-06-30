@@ -56,7 +56,6 @@ class nodepool (
   }
 
   $packages = [
-    'build-essential',
     'libffi-dev',
     'libssl-dev',
     'libgmp-dev',         # transitive dep of paramiko
@@ -66,6 +65,12 @@ class nodepool (
   ]
 
   ensure_packages($packages, {'ensure' => 'present'})
+
+  if ! defined(Package['build-essential']) {
+    package { 'build-essential':
+      ensure => present,
+    }
+  }
 
   file { '/etc/mysql/conf.d/max_connections.cnf':
     ensure  => present,
