@@ -285,6 +285,9 @@ class nodepool (
       docroot  => 'MEANINGLESS_ARGUMENT',
       template => 'nodepool/nodepool-log.vhost.erb',
     }
+    if ! defined(Httpd::Mod['rewrite']) {
+      httpd::mod { 'rewrite': ensure => present }
+    }
   }
 
   if $image_log_document_root != '/var/log/nodepool' {

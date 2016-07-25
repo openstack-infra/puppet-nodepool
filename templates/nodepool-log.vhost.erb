@@ -15,6 +15,10 @@
 
   AddType text/plain .log
 
+  RewriteEngine on
+  RewriteRule ^/image-list$ http://127.0.0.1:8005/image-list [P]
+  RewriteRule ^/dib-image-list$ http://127.0.0.1:8005/dib-image-list [P]
+
   <IfModule mod_deflate.c>
       SetOutputFilter DEFLATE
   </IfModule>
