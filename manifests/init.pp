@@ -35,10 +35,7 @@ class nodepool (
   $scripts_dir = undef,
   $elements_dir = undef,
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
-  $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
   $jenkins_masters = [],
-  $build_workers = '1',
-  $upload_workers = '4',
   $install_mysql = true,
   $mysql_db_name = 'nodepool',
   $mysql_host = 'localhost',
@@ -324,13 +321,5 @@ class nodepool (
     owner  => 'root',
     group  => 'root',
     mode   => '0440',
-  }
-
-  class { '::nodepool::builder':
-    statsd_host                   => $statsd_host,
-    environment                   => $environment,
-    builder_logging_conf_template => $builder_logging_conf_template,
-    build_workers                 => $build_workers,
-    upload_workers                => $upload_workers,
   }
 }
