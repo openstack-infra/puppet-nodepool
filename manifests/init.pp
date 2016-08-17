@@ -107,8 +107,6 @@ class nodepool (
     source   => $git_source_repo,
   }
 
-  include ::diskimage_builder
-
   include ::pip
   exec { 'install_nodepool' :
     command     => 'pip install -U /opt/nodepool',
