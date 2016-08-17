@@ -23,6 +23,8 @@ class nodepool::builder(
   $upload_workers = '4',
 ) {
 
+  include ::diskimage_builder
+
   file { '/etc/init.d/nodepool-builder':
     ensure => present,
     mode   => '0555',
