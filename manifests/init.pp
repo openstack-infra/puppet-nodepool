@@ -35,17 +35,15 @@ class nodepool (
   $scripts_dir = undef,
   $elements_dir = undef,
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
-  # TODO(pabelanger): Unused, to be removed
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
   $jenkins_masters = [],
-  # TODO(pabelanger): Unused, to be removed
   $build_workers = '1',
-  # TODO(pabelanger): Unused, to be removed
   $upload_workers = '4',
   $install_mysql = true,
   $mysql_db_name = 'nodepool',
   $mysql_host = 'localhost',
   $mysql_user_name = 'nodepool',
+  $install_nodepool_builder = true,
 ) {
 
   class { '::nodepool::server': {
@@ -70,5 +68,15 @@ class nodepool (
     mysql_db_name               => $mysql_db_name,
     mysql_host                  => $mysql_host,
     mysql_user_name             => $mysql_user_name,
+  }
+
+  if ($install_nodepool_builder) {
+    class { '::nodepool::builder':
+      statsd_host                   => $statsd_host,
+      environment                   => $environment,
+      builder_logging_conf_template => $builder_logging_conf_template,
+      build_workers                 => $build_workers,
+      upload_workers                => $upload_workers,
+    }
   }
 }
