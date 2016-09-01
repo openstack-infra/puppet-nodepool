@@ -288,6 +288,12 @@ class nodepool (
     if ! defined(Httpd::Mod['rewrite']) {
       httpd::mod { 'rewrite': ensure => present }
     }
+    if ! defined(Httpd::Mod['proxy']) {
+      httpd::mod { 'proxy': ensure => present }
+    }
+    if ! defined(Httpd::Mod['proxy_http']) {
+      httpd::mod { 'proxy_http': ensure => present }
+    }
   }
 
   if $image_log_document_root != '/var/log/nodepool' {
