@@ -35,6 +35,8 @@ class nodepool (
   $scripts_dir = undef,
   $elements_dir = undef,
   $logging_conf_template = 'nodepool/nodepool.logging.conf.erb',
+  $launcher_logging_conf_template = 'nodepool/nodepool-launcher.logging.conf.erb',
+  $deleter_logging_conf_template = 'nodepool/nodepool-deleter.logging.conf.erb',
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
   $jenkins_masters = [],
   $build_workers = '1',
@@ -247,6 +249,22 @@ class nodepool (
     content => template($logging_conf_template),
   }
 
+  file { '/etc/nodepool/launcher-logging.conf':
+    ensure  => present,
+    mode    => '0444',
+    owner   => 'root',
+    group   => 'root',
+    content => template($launcher_logging_conf_template),
+  }
+
+  file { '/etc/nodepool/deleter-logging.conf':
+    ensure  => present,
+    mode    => '0444',
+    owner   => 'root',
+    group   => 'root',
+    content => template($deleter_logging_conf_template),
+  }
+
   validate_array($jenkins_masters)
   file { '/etc/nodepool/secure.conf':
     ensure  => present,
@@ -273,6 +291,36 @@ class nodepool (
     enable     => true,
     hasrestart => true,
     require    => File['/etc/init.d/nodepool'],
+  }
+
+  file { '/etc/init.d/nodepool-launcher':
+    ensure => present,
+    mode   => '0555',
+    owner  => 'root',
+    group  => 'root',
+    source => 'puppet:///modules/nodepool/nodepool-launcher.init',
+  }
+
+  service { 'nodepool-launcher':
+    name       => 'nodepool-launcher',
+    enable     => true,
+    hasrestart => true,
+    require    => File['/etc/init.d/nodepool-launcher'],
+  }
+
+  file { '/etc/init.d/nodepool-deleter':
+    ensure => present,
+    mode   => '0555',
+    owner  => 'root',
+    group  => 'root',
+    source => 'puppet:///modules/nodepool/nodepool-deleter.init',
+  }
+
+  service { 'nodepool-deleter':
+    name       => 'nodepool-deleter',
+    enable     => true,
+    hasrestart => true,
+    require    => File['/etc/init.d/nodepool-deleter'],
   }
 
   if $enable_image_log_via_http == true {
