@@ -5,4 +5,8 @@ export STATSD_PORT=8125
 <% @environment.keys.sort.each do |key| -%>
 export <%= key %>='<%= @environment[key] %>'
 <% end -%>
+<% if @split -%>
+DAEMON_ARGS="--no-builder -c /etc/nodepool/nodepool.yaml -l /etc/nodepool/logging.conf --no-launches --no-deletes"
+<% else -%>
 DAEMON_ARGS="--no-builder -c /etc/nodepool/nodepool.yaml -l /etc/nodepool/logging.conf"
+<% end -%>
