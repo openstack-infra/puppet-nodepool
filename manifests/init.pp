@@ -251,6 +251,22 @@ class nodepool (
   }
 
   if ($split_daemon) {
+    file { '/etc/default/nodepool-launcher':
+      ensure  => present,
+      content => template('nodepool/nodepool-launcher.default.erb'),
+      mode    => '0444',
+      owner   => 'root',
+      group   => 'root',
+    }
+
+    file { '/etc/default/nodepool-deleter':
+      ensure  => present,
+      content => template('nodepool/nodepool-deleter.default.erb'),
+      mode    => '0444',
+      owner   => 'root',
+      group   => 'root',
+    }
+
     file { '/etc/nodepool/launcher-logging.conf':
       ensure  => present,
       mode    => '0444',
