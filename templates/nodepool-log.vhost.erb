@@ -2,11 +2,23 @@
   ServerName <%= scope.lookupvar("nodepool::vhost_name") %>
 
   DocumentRoot <%= scope.lookupvar("nodepool::image_log_document_root") %>
+
+  <% if scope.lookupvar("nodepool::enable_image_log_via_http") == true -%>
   <Directory <%= scope.lookupvar("nodepool::image_log_document_root") %>>
     Options <%= scope.lookupvar("httpd::params::options") %>
     AllowOverride None
     Require all granted
-</Directory>
+  </Directory>
+  <% end -%>
+
+  <% if scope.lookupvar("nodepool::enable_upload_log_via_http") == true -%>
+  Alias "/upload" <%= scope.lookupvar("nodepool::upload_log_document_root") %>
+  <Directory <%= scope.lookupvar("nodepool::upload_log_document_root") %> >
+   Options <%= scope.lookupvar("httpd::params::options") %>
+   AllowOverride None
+   Require all granted
+  </Directory>
+  <% end -%>
 
   ErrorLog /var/log/<%= scope.lookupvar("httpd::params::apache_name") %>/nodepool_error.log
   LogLevel warn
