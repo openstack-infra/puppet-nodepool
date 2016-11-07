@@ -29,6 +29,10 @@ class nodepool (
   $image_log_document_root = '/var/log/nodepool/image',
   $image_log_periodic_cleanup = false,
   $enable_image_log_via_http = false,
+  $upload_log_document_root = '/var/log/nodepool/image',
+  $upload_log_periodic_cleanup = false,
+  # note : not currently supported
+  $enable_upload_log_via_http = false,
   $environment = {},
   # enable sudo for nodepool user. Useful for using dib with nodepool
   $sudo = true,
@@ -363,8 +367,12 @@ class nodepool (
     }
   }
 
-  if $image_log_document_root != '/var/log/nodepool' {
-    file { $image_log_document_root:
+  if $enable_upload_log_via_http == true {
+    fail('Image logs via http not currently supported.')
+  }
+
+  if $upload_log_document_root != '/var/log/nodepool' {
+    file { $upload_log_document_root:
       ensure  => directory,
       mode    => '0755',
       owner   => 'nodepool',
@@ -384,6 +392,18 @@ class nodepool (
       hour        => '1',
       minute      => '0',
       command     => "find ${image_log_document_root} \\( -name '*.log' -o -name '*.log.*' \\) -mtime +7 -execdir rm {} \\;",
+      environment => 'PATH=/usr/bin:/bin:/usr/sbin:/sbin',
+    }
+  }
+
+  # run a cleanup on the upload log directory to cleanup logs for
+  # images that are no longer being built
+  if $upload_log_periodic_cleanup == true {
+    cron { 'upload_log_cleanup':
+      user        => 'nodepool',
+      hour        => '1',
+      minute      => '0',
+      command     => "find ${upload_log_document_root} \\( -name '*.log' -o -name '*.log.*' \\) -mtime +7 -execdir rm {} \\;",
       environment => 'PATH=/usr/bin:/bin:/usr/sbin:/sbin',
     }
   }
