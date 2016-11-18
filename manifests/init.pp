@@ -50,6 +50,7 @@ class nodepool (
   $mysql_host = 'localhost',
   $mysql_user_name = 'nodepool',
   $split_daemon = false,
+  install_nodepool_builder = true,
 ) {
 
   if($install_mysql) {
@@ -447,11 +448,13 @@ class nodepool (
     mode   => '0440',
   }
 
-  class { '::nodepool::builder':
-    statsd_host                   => $statsd_host,
-    environment                   => $environment,
-    builder_logging_conf_template => $builder_logging_conf_template,
-    build_workers                 => $build_workers,
-    upload_workers                => $upload_workers,
+  if ($install_nodepool_builder) {
+    class { '::nodepool::builder':
+      statsd_host                   => $statsd_host,
+      environment                   => $environment,
+      builder_logging_conf_template => $builder_logging_conf_template,
+      build_workers                 => $build_workers,
+      upload_workers                => $upload_workers,
+    }
   }
 }
