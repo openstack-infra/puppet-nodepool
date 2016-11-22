@@ -1,0 +1,10 @@
+Code-Review+2: Clark Boylan <cboylan@sapwetik.org>
+Code-Review+2: Joshua Hesketh <joshua.hesketh@rackspace.com>
+Code-Review+2: James E. Blair <corvus@inaugust.com>
+Workflow+1: Joshua Hesketh <joshua.hesketh@rackspace.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 22 Nov 2016 01:06:38 +0000
+Reviewed-on: https://review.openstack.org/356484
+Project: openstack-infra/puppet-nodepool
+Branch: refs/heads/master
