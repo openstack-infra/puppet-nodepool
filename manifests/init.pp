@@ -80,14 +80,6 @@ class nodepool (
     }
   }
 
-  file { '/etc/mysql/conf.d/max_connections.cnf':
-    ensure  => present,
-    content => "[server]\nmax_connections = 8192\n",
-    mode    => '0444',
-    owner   => 'root',
-    group   => 'root',
-  }
-
   user { 'nodepool':
     ensure     => present,
     home       => '/home/nodepool',
