@@ -74,6 +74,12 @@ class nodepool (
 
   ensure_packages($packages, {'ensure' => 'present'})
 
+  $absent_packages = [
+    'python-openssl',
+  ]
+
+  ensure_packages($absent_packages, {'ensure' => 'absent'})
+
   if ! defined(Package['build-essential']) {
     package { 'build-essential':
       ensure => present,
