@@ -208,14 +208,6 @@ class nodepool (
     require => User['nodepool'],
   }
 
-  file { '/home/nodepool/.ssh':
-    ensure  => directory,
-    mode    => '0500',
-    owner   => 'nodepool',
-    group   => 'nodepool',
-    require => User['nodepool'],
-  }
-
   file { '/home/nodepool/.ssh/id_rsa':
     ensure  => present,
     content => $nodepool_ssh_private_key,
@@ -223,17 +215,6 @@ class nodepool (
     owner   => 'nodepool',
     group   => 'nodepool',
     require => File['/home/nodepool/.ssh'],
-  }
-
-  if ($nodepool_ssh_public_key != undef) {
-    file { '/home/nodepool/.ssh/id_rsa.pub':
-      ensure  => present,
-      content => $nodepool_ssh_public_key,
-      mode    => '0644',
-      owner   => 'nodepool',
-      group   => 'nodepool',
-      require => File['/home/nodepool/.ssh'],
-    }
   }
 
   file { '/home/nodepool/.ssh/config':
@@ -450,11 +431,25 @@ class nodepool (
 
   if ($install_nodepool_builder) {
     class { '::nodepool::builder':
+      nodepool_ssh_public_key       => $nodepool_ssh_public_key,
       statsd_host                   => $statsd_host,
       environment                   => $environment,
       builder_logging_conf_template => $builder_logging_conf_template,
       build_workers                 => $build_workers,
       upload_workers                => $upload_workers,
+    }
+  } else {
+    # For now, conditionally include this, since this code also lives in
+    # nodepool-builder.  One things have settled down with zuulv3 effort, we
+    # should refactor this into a common.pp file.
+    if ! defined(File['/home/nodepool/.ssh']) {
+      file { '/home/nodepool/.ssh':
+        ensure  => directory,
+        mode    => '0500',
+        owner   => 'nodepool',
+        group   => 'nodepool',
+        require => User['nodepool'],
+      }
     }
   }
 }
