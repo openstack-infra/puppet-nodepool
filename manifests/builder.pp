@@ -16,6 +16,7 @@
 #
 class nodepool::builder(
   $statsd_host = undef,
+  $nodepool_ssh_public_key = undef,
   $image_log_document_root = '/var/log/nodepool/image',
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
   $environment = {},
@@ -24,6 +25,25 @@ class nodepool::builder(
 ) {
 
   include ::diskimage_builder
+
+  file { '/home/nodepool/.ssh':
+    ensure  => directory,
+    mode    => '0500',
+    owner   => 'nodepool',
+    group   => 'nodepool',
+    require => User['nodepool'],
+  }
+
+  if ($nodepool_ssh_public_key != undef) {
+    file { '/home/nodepool/.ssh/id_rsa.pub':
+      ensure  => present,
+      content => $nodepool_ssh_public_key,
+      mode    => '0644',
+      owner   => 'nodepool',
+      group   => 'nodepool',
+      require => File['/home/nodepool/.ssh'],
+    }
+  }
 
   file { '/etc/init.d/nodepool-builder':
     ensure => present,
