@@ -51,6 +51,7 @@ class nodepool (
   $mysql_user_name = 'nodepool',
   $split_daemon = false,
   $install_nodepool_builder = true,
+  $install_nodepool_launcher = false,
 ) {
 
   if($install_mysql) {
@@ -233,13 +234,7 @@ class nodepool (
   }
 
   if ($split_daemon) {
-    file { '/etc/default/nodepool-launcher':
-      ensure  => present,
-      content => template('nodepool/nodepool-launcher.default.erb'),
-      mode    => '0444',
-      owner   => 'root',
-      group   => 'root',
-    }
+    $install_nodepool_launcher = true
 
     file { '/etc/default/nodepool-deleter':
       ensure  => present,
@@ -249,35 +244,12 @@ class nodepool (
       group   => 'root',
     }
 
-    file { '/etc/nodepool/launcher-logging.conf':
-      ensure  => present,
-      mode    => '0444',
-      owner   => 'root',
-      group   => 'root',
-      content => template($launcher_logging_conf_template),
-    }
-
     file { '/etc/nodepool/deleter-logging.conf':
       ensure  => present,
       mode    => '0444',
       owner   => 'root',
       group   => 'root',
       content => template($deleter_logging_conf_template),
-    }
-
-    file { '/etc/init.d/nodepool-launcher':
-      ensure => present,
-      mode   => '0555',
-      owner  => 'root',
-      group  => 'root',
-      source => 'puppet:///modules/nodepool/nodepool-launcher.init',
-    }
-
-    service { 'nodepool-launcher':
-      name       => 'nodepool-launcher',
-      enable     => true,
-      hasrestart => true,
-      require    => File['/etc/init.d/nodepool-launcher'],
     }
 
     file { '/etc/init.d/nodepool-deleter':
@@ -425,6 +397,27 @@ class nodepool (
     owner  => 'root',
     group  => 'root',
     mode   => '0440',
+  }
+
+  if ($install_nodepool_launcher) {
+    class { '::nodepool::launcher':
+      nodepool_ssh_public_key        => $nodepool_ssh_public_key,
+      statsd_host                    => $statsd_host,
+      launcher_logging_conf_template => $launcher_logging_conf_template,
+    }
+  } else {
+    # For now, conditionally include this, since this code also lives in
+    # nodepool-builder.  One things have settled down with zuulv3 effort, we
+    # should refactor this into a common.pp file.
+    if ! defined(File['/home/nodepool/.ssh']) {
+      file { '/home/nodepool/.ssh':
+        ensure  => directory,
+        mode    => '0500',
+        owner   => 'nodepool',
+        group   => 'nodepool',
+        require => User['nodepool'],
+      }
+    }
   }
 
   if ($install_nodepool_builder) {
