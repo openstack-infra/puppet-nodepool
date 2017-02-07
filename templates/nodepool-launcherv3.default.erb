@@ -1,0 +1,5 @@
+<% if @statsd_host != nil && @statsd_host != "" -%>
+export STATSD_HOST=<%= @statsd_host %>
+export STATSD_PORT=8125
+<% end -%>
+DAEMON_ARGS="-c /etc/nodepool/nodepool.yaml -l /etc/nodepool/launcher-logging.conf"
