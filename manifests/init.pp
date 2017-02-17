@@ -33,6 +33,11 @@ class nodepool (
   $upload_log_periodic_cleanup = false,
   # note : not currently supported
   $enable_upload_log_via_http = false,
+  # Enable a default status page in /var/www/nodepool
+  $enable_html_status = false,
+  # /var/www/nodepool is populated from this
+  # If undef, taken from $git_source_repo:contrib/status
+  $html_status_source = undef,
   $environment = {},
   # enable sudo for nodepool user. Useful for using dib with nodepool
   $sudo = true,
@@ -121,6 +126,33 @@ class nodepool (
       Package['libxslt-dev'],
       Package['libgmp-dev'],
     ],
+  }
+
+  if ($enable_html_status) {
+    # By default we copy this from the git checkout contrib/status,
+    # but allow the user to override if they have an alternative page.
+    if (!$html_status_source) {
+      file { '/var/www/nodepool':
+        ensure    => directory,
+        owner     => 'root',
+        group     => 'www-data',
+        mode      => '0755',
+        recurse   => true,
+        purge     => true,
+        source    => '/opt/nodepool/contrib/status',
+        subscribe => Vcsrepo['/opt/nodepool'],
+      }
+    } else {
+      file { '/var/www/nodepool':
+        ensure  => directory,
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0755',
+        recurse => true,
+        purge   => true,
+        source  => $html_status_source,
+      }
+    }
   }
 
   file { '/etc/nodepool':
