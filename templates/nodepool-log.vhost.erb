@@ -1,7 +1,21 @@
 <VirtualHost *:80>
   ServerName <%= scope.lookupvar("nodepool::vhost_name") %>
 
+  # Historically logs are at the document root and just listed from
+  # the filesystem.  However, if enable_html_status, we alias logs to
+  # /image so / can be the HTML page.
+  #
+  # This likely makes no difference -- as we've now split out
+  # builders, it is likely the main nodepool host where you
+  # enable_html_status doesn't have any image logs of interest anyway
+  # (it's all on the builders, where you don't enable the status and
+  # thus they stay as-is)
+  <% if scope.lookupvar("nodepool::enable_html_status") -%>
+  DocumentRoot /var/www/nodepool
+  Alias "/image" <%= scope.lookupvar("nodepool::image_log_document_root") %>
+  <% else -%>
   DocumentRoot <%= scope.lookupvar("nodepool::image_log_document_root") %>
+  <% end -%>
 
   <% if scope.lookupvar("nodepool::enable_image_log_via_http") -%>
   <Directory <%= scope.lookupvar("nodepool::image_log_document_root") %>>
