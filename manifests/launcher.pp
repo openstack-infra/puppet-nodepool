@@ -15,6 +15,7 @@
 # == Class: nodepool::launcher
 #
 class nodepool::launcher(
+  $nodepool_ssh_private_key = undef,
   $statsd_host = undef,
   $nodepool_ssh_public_key = undef,
   $launcher_logging_conf_template = 'nodepool/nodepool-launcher.logging.conf.erb',
@@ -28,6 +29,15 @@ class nodepool::launcher(
       group   => 'nodepool',
       require => User['nodepool'],
     }
+  }
+
+  file { '/home/nodepool/.ssh/id_rsa':
+    ensure  => present,
+    content => $nodepool_ssh_private_key,
+    mode    => '0400',
+    owner   => 'nodepool',
+    group   => 'nodepool',
+    require => File['/home/nodepool/.ssh'],
   }
 
   if ($nodepool_ssh_public_key != undef) {
