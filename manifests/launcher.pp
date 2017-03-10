@@ -16,6 +16,7 @@
 #
 class nodepool::launcher(
   $statsd_host = undef,
+  $statsd_prefix = undef,
   $nodepool_ssh_public_key = undef,
   $launcher_logging_conf_template = 'nodepool/nodepool-launcher.logging.conf.erb',
 ) {
