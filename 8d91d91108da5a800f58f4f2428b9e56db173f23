@@ -1,0 +1,9 @@
+Code-Review+2: Monty Taylor <mordred@inaugust.com>
+Code-Review+2: James E. Blair <corvus@inaugust.com>
+Workflow+1: Monty Taylor <mordred@inaugust.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Fri, 10 Mar 2017 21:07:15 +0000
+Reviewed-on: https://review.openstack.org/444363
+Project: openstack-infra/puppet-nodepool
+Branch: refs/heads/master
