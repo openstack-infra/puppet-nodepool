@@ -15,7 +15,7 @@
 PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin
 DESC="Nodepool Launcher"
 NAME=nodepool-launcher
-DAEMON=/usr/local/bin/nodepoold
+DAEMON=/usr/local/bin/nodepool-launcher
 PIDFILE=/var/run/$NAME/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 USER=nodepool
