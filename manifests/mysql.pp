@@ -25,6 +25,7 @@ class nodepool::mysql (
     class { '::mysql::server' :
       override_options => {
         'mysqld' => {
+          'bind_address'           => $mysql_bind_address,
           'default-storage-engine' => $mysql_default_engine,
           'max_connections'        => $mysql_max_connections,
         }
