@@ -51,6 +51,7 @@ class nodepool (
   $mysql_user_name = 'nodepool',
   $split_daemon = false,
   $install_nodepool_builder = true,
+  $python_version = 2,
 ) {
 
   if($install_mysql) {
@@ -107,8 +108,16 @@ class nodepool (
   }
 
   include ::pip
+
+  if ($python_version == 3) {
+    include ::pip::python3
+    $pip_command = 'pip3'
+  } else {
+    $pip_command = 'pip'
+  }
+
   exec { 'install_nodepool' :
-    command     => 'pip install -U /opt/nodepool',
+    command     => '${pip_command} install -U /opt/nodepool',
     path        => '/usr/local/bin:/usr/bin:/bin/',
     refreshonly => true,
     subscribe   => Vcsrepo['/opt/nodepool'],
