@@ -117,7 +117,7 @@ class nodepool (
   }
 
   exec { 'install_nodepool' :
-    command     => '${pip_command} install -U /opt/nodepool',
+    command     => "${pip_command} install -U /opt/nodepool",
     path        => '/usr/local/bin:/usr/bin:/bin/',
     refreshonly => true,
     subscribe   => Vcsrepo['/opt/nodepool'],
