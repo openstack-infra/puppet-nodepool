@@ -1,0 +1,9 @@
+Code-Review+2: David Shrewsbury <shrewsbury.dave@gmail.com>
+Code-Review+2: Clark Boylan <cboylan@sapwetik.org>
+Workflow+1: Clark Boylan <cboylan@sapwetik.org>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Wed, 26 Jul 2017 17:34:55 +0000
+Reviewed-on: https://review.openstack.org/487526
+Project: openstack-infra/puppet-nodepool
+Branch: refs/heads/master
