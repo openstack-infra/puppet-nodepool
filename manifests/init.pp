@@ -42,6 +42,7 @@ class nodepool (
   $launcher_logging_conf_template = 'nodepool/nodepool-launcher.logging.conf.erb',
   $deleter_logging_conf_template = 'nodepool/nodepool-deleter.logging.conf.erb',
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
+  $secure_conf_template = 'nodepool/secure.conf.erb',
   $jenkins_masters = [],
   $build_workers = '1',
   $upload_workers = '4',
@@ -311,7 +312,7 @@ class nodepool (
     owner   => 'nodepool',
     group   => 'root',
     mode    => '0400',
-    content => template('nodepool/secure.conf.erb'),
+    content => template($secure_conf_template),
     require => [
       File['/etc/nodepool'],
       User['nodepool'],
