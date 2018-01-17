@@ -16,7 +16,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin
 DESC="Nodepool Builder Worker"
 NAME=nodepool-builder
 DAEMON=/usr/local/bin/nodepool-builder
-PIDFILE=/var/run/$NAME/$NAME.pid
+PIDFILE=/var/run/nodepool/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 USER=nodepool
 
@@ -33,6 +33,8 @@ USER=nodepool
 # Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
 . /lib/lsb/init-functions
 
+PIDFILE_DIR=$(dirname $PIDFILE)
+
 #
 # Function that starts the daemon/service
 #
@@ -43,8 +45,10 @@ do_start()
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
 
-        mkdir -p /var/run/$NAME
-	chown $USER /var/run/$NAME
+	if [ ! -d "$PIDFILE_DIR" ] ; then
+		mkdir -p $PIDFILE_DIR
+		chown $USER $PIFILE_DIR
+	fi
 	ulimit -n 8192
 	start-stop-daemon --start --quiet --pidfile $PIDFILE -c $USER --exec $DAEMON --test > /dev/null \
 		|| return 1
@@ -69,7 +73,9 @@ do_stop()
 	start-stop-daemon --stop --signal 9 --pidfile $PIDFILE
 	RETVAL="$?"
 	[ "$RETVAL" = 2 ] && return 2
-	rm -f /var/run/$NAME/*
+	if [ -f "$PIDFILE" ] ; then
+		rm -f $PIDFILE
+	fi
 	return "$RETVAL"
 }
 
@@ -98,7 +104,9 @@ do_graceful_stop()
 		done
 	fi
 
-	rm -f /var/run/$NAME/*
+	if [ -f "$PIDFILE" ] ; then
+		rm -f $PIDFILE
+	fi
 }
 
 #
