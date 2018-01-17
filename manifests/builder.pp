@@ -22,6 +22,7 @@ class nodepool::builder(
   $environment = {},
   $build_workers = '1',
   $upload_workers = '4',
+  $zuulv3 = false,
 ) {
 
   include ::diskimage_builder
