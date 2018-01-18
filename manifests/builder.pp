@@ -72,6 +72,17 @@ class nodepool::builder(
     content => template($builder_logging_conf_template),
   }
 
+  if ($::operatingsystem == 'Ubuntu') and ($::operatingsystemrelease >= '16.04') {
+    # This is a hack to make sure that systemd is aware of the new service
+    # before we attempt to start it.
+    exec { 'nodepool-builder-systemd-daemon-reload':
+      command     => '/bin/systemctl daemon-reload',
+      before      => Service['nodepool-builder'],
+      subscribe   => File['/etc/init.d/nodepool-builder'],
+      refreshonly => true,
+    }
+  }
+
   service { 'nodepool-builder':
     name       => 'nodepool-builder',
     enable     => true,

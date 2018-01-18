@@ -66,6 +66,17 @@ class nodepool::launcher(
     content => template($launcher_logging_conf_template),
   }
 
+  if ($::operatingsystem == 'Ubuntu') and ($::operatingsystemrelease >= '16.04') {
+    # This is a hack to make sure that systemd is aware of the new service
+    # before we attempt to start it.
+    exec { 'nodepool-launcher-systemd-daemon-reload':
+      command     => '/bin/systemctl daemon-reload',
+      before      => Service['nodepool-launcher'],
+      subscribe   => File['/etc/init.d/nodepool-launcher'],
+      refreshonly => true,
+    }
+  }
+
   service { 'nodepool-launcher':
     name       => 'nodepool-launcher',
     enable     => true,
