@@ -1,0 +1,11 @@
+Code-Review+2: David Shrewsbury <shrewsbury.dave@gmail.com>
+Code-Review+2: Clark Boylan <cboylan@sapwetik.org>
+Workflow+1: David Shrewsbury <shrewsbury.dave@gmail.com>
+Code-Review+2: David Moreau Simard <dmsimard@redhat.com>
+Code-Review+2: Jeremy Stanley <fungi@yuggoth.org>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Fri, 19 Jan 2018 18:44:39 +0000
+Reviewed-on: https://review.openstack.org/535829
+Project: openstack-infra/puppet-nodepool
+Branch: refs/heads/master
