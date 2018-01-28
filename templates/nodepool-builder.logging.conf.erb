@@ -1,5 +1,5 @@
 [loggers]
-keys=root,nodepool,requests,image
+keys=root,nodepool,requests,image,kazoo
 
 [handlers]
 keys=console,debug,normal,image
@@ -26,6 +26,11 @@ level=INFO
 handlers=image
 qualname=nodepool.image.build
 propagate=0
+
+[logger_kazoo]
+level=INFO
+handlers=debug,normal
+qualname=kazoo
 
 [handler_console]
 level=WARNING

@@ -1,5 +1,5 @@
 [loggers]
-keys=root,nodepool,requests,shade
+keys=root,nodepool,requests,shade,kazoo
 
 [handlers]
 keys=console,debug,normal
@@ -21,10 +21,10 @@ level=WARNING
 handlers=debug,normal
 qualname=shade
 
-[logger_gear]
-level=DEBUG
+[logger_kazoo]
+level=INFO
 handlers=debug,normal
-qualname=gear
+qualname=kazoo
 
 [logger_nodepool]
 level=DEBUG
