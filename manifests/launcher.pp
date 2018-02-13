@@ -19,6 +19,10 @@ class nodepool::launcher(
   $statsd_prefix = undef,
   $nodepool_ssh_public_key = undef,
   $launcher_logging_conf_template = 'nodepool/nodepool-launcher.logging.conf.erb',
+  # If true, an apache will be setup to redirect webapp end-points to
+  # the local webapp instance (on port 8005)
+  $enable_webapp = true,
+  $vhost_name = $::fqdn,
 ) {
 
   if ! defined(File['/home/nodepool/.ssh']) {
@@ -87,4 +91,25 @@ class nodepool::launcher(
       File['/etc/nodepool/launcher-logging.conf'],
     ],
   }
+
+  if $enable_webapp == true {
+    include ::httpd
+
+    ::httpd::vhost { $vhost_name:
+      port     => 80,
+      priority => '50',
+      docroot  => 'MEANINGLESS_ARGUMENT',
+      template => 'nodepool/nodepool-launcher.vhost.erb',
+    }
+    if ! defined(Httpd::Mod['rewrite']) {
+      httpd::mod { 'rewrite': ensure => present }
+    }
+    if ! defined(Httpd::Mod['proxy']) {
+      httpd::mod { 'proxy': ensure => present }
+    }
+    if ! defined(Httpd::Mod['proxy_http']) {
+      httpd::mod { 'proxy_http': ensure => present }
+    }
+  }
+
 }
