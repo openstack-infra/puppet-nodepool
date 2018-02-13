@@ -25,14 +25,21 @@ class nodepool (
   $git_source_repo = 'https://git.openstack.org/openstack-infra/nodepool',
   $revision = 'master',
   $statsd_host = undef,
+  # The following have all been deprecated and are left only for
+  # argument compatability
+  # - To export the image on builders use builder:enable_build_log_via_http
+  # - To enable the webapp on launchers use launcher::enable_webapp
+  # - Upload logs were never really useful
+  # - TODO: config magic so you can have a launcher & builder on the
+  #   same host.
+  $enable_image_log_via_http = undef,
+  $image_log_document_root = undef,
   $vhost_name = $::fqdn,
-  $image_log_document_root = '/var/log/nodepool/image',
-  $image_log_periodic_cleanup = false,
-  $enable_image_log_via_http = false,
-  $upload_log_document_root = '/var/log/nodepool/upload',
-  $upload_log_periodic_cleanup = false,
-  # note : not currently supported
-  $enable_upload_log_via_http = false,
+  $image_log_periodic_cleanup = undef,
+  $upload_log_document_root = undef,
+  $upload_log_periodic_cleanup = undef,
+  $enable_upload_log_via_http = undef,
+  # /end
   $environment = {},
   # enable sudo for nodepool user. Useful for using dib with nodepool
   $sudo = true,
@@ -331,95 +338,6 @@ class nodepool (
     enable     => true,
     hasrestart => true,
     require    => File['/etc/init.d/nodepool'],
-  }
-
-  if $image_log_document_root == $upload_log_document_root {
-    # It makes no sense to ask to not export build or upload logs, but
-    # then have them log to the same directory that will be exported.
-    if (($enable_image_log_via_http and !$enable_upload_log_via_http) or
-        ($enable_upload_log_via_http and !$enable_image_log_via_http)
-    ) {
-        fail('Unexported logs in same directory as exported logs!')
-    }
-  }
-
-  # we only need to create the upload log dir if it is separate to the
-  # image log.
-  $separate_upload_log_dir =
-    $image_log_document_root != $upload_log_document_root
-
-  if $enable_image_log_via_http == true or
-    $enable_upload_log_via_http == true {
-    # Setup apache for log access
-    include ::httpd
-
-    ::httpd::vhost { $vhost_name:
-      port     => 80,
-      priority => '50',
-      docroot  => 'MEANINGLESS_ARGUMENT',
-      template => 'nodepool/nodepool-log.vhost.erb',
-    }
-    if ! defined(Httpd::Mod['rewrite']) {
-      httpd::mod { 'rewrite': ensure => present }
-    }
-    if ! defined(Httpd::Mod['proxy']) {
-      httpd::mod { 'proxy': ensure => present }
-    }
-    if ! defined(Httpd::Mod['proxy_http']) {
-      httpd::mod { 'proxy_http': ensure => present }
-    }
-  }
-
-  if $image_log_document_root != '/var/log/nodepool' {
-    file { $image_log_document_root:
-      ensure  => directory,
-      mode    => '0755',
-      owner   => 'nodepool',
-      group   => 'nodepool',
-      require => [
-        User['nodepool'],
-        File['/var/log/nodepool'],
-      ],
-    }
-  }
-
-  # we only need this if it is different to the image_log
-  if $separate_upload_log_dir
-  {
-    file { $upload_log_document_root:
-      ensure  => directory,
-      mode    => '0755',
-      owner   => 'nodepool',
-      group   => 'nodepool',
-      require => [
-        User['nodepool'],
-        File['/var/log/nodepool'],
-      ],
-    }
-  }
-
-  # run a cleanup on the image log directory to cleanup logs for
-  # images that are no longer being built
-  if $image_log_periodic_cleanup == true {
-    cron { 'image_log_cleanup':
-      user        => 'nodepool',
-      hour        => '1',
-      minute      => '0',
-      command     => "find ${image_log_document_root} \\( -name '*.log' -o -name '*.log.*' \\) -mtime +7 -execdir rm {} \\;",
-      environment => 'PATH=/usr/bin:/bin:/usr/sbin:/sbin',
-    }
-  }
-
-  # run a cleanup on the upload log directory to cleanup logs for
-  # providers that are no long uploading
-  if $upload_log_periodic_cleanup == true {
-    cron { 'upload_log_cleanup':
-      user        => 'nodepool',
-      hour        => '1',
-      minute      => '0',
-      command     => "find ${upload_log_document_root} \\( -name '*.log' -o -name '*.log.*' \\) -mtime +7 -execdir rm {} \\;",
-      environment => 'PATH=/usr/bin:/bin:/usr/sbin:/sbin',
-    }
   }
 
   if $sudo == true {
