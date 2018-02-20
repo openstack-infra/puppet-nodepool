@@ -25,7 +25,17 @@ class nodepool::builder(
   $zuulv3 = false,
 ) {
 
-  include ::diskimage_builder
+  # This requires custom packages which aren't build for arm64; if we
+  # ever have a need we can re-evaluate this.
+  if ($::architecture == 'aarch64') {
+    $support_vhd = false
+  } else {
+    $support_vhd = true
+  }
+
+  class { '::diskimage_builder':
+    support_vhd => $support_vhd,
+  }
 
   if ! defined(File['/home/nodepool/.ssh']) {
     file { '/home/nodepool/.ssh':
