@@ -1,0 +1,9 @@
+Code-Review+2: Clark Boylan <cboylan@sapwetik.org>
+Code-Review+2: Paul Belanger <pabelanger@redhat.com>
+Workflow+1: Paul Belanger <pabelanger@redhat.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Wed, 21 Feb 2018 23:13:51 +0000
+Reviewed-on: https://review.openstack.org/546435
+Project: openstack-infra/puppet-nodepool
+Branch: refs/heads/master
