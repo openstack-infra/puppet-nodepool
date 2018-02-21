@@ -130,6 +130,7 @@ class nodepool (
       Package['libxslt-dev'],
       Package['libgmp-dev'],
     ],
+    timeout     => 1000,
   }
 
   file { '/etc/nodepool':
