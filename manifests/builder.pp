@@ -17,7 +17,10 @@
 class nodepool::builder(
   $statsd_host = undef,
   $nodepool_ssh_public_key = undef,
-  $image_log_document_root = '/var/log/nodepool/image',
+  # If true, export build logs from $build_log_document_root via apache
+  $enable_build_log_via_http = false,
+  $build_log_document_root = '/var/log/nodepool/builds',
+  $vhost_name = $::fqdn,
   $builder_logging_conf_template = 'nodepool/nodepool-builder.logging.conf.erb',
   $environment = {},
   $build_workers = '1',
@@ -101,6 +104,37 @@ class nodepool::builder(
       File['/etc/init.d/nodepool-builder'],
       File['/etc/default/nodepool-builder'],
       File['/etc/nodepool/builder-logging.conf'],
+    ],
+  }
+
+  if $enable_build_log_via_http == true {
+    include ::httpd
+
+    ::httpd::vhost { $vhost_name:
+      port     => 80,
+      priority => '50',
+      docroot  => 'MEANINGLESS_ARGUMENT',
+      template => 'nodepool/nodepool-builder.vhost.erb',
+    }
+    if ! defined(Httpd::Mod['rewrite']) {
+      httpd::mod { 'rewrite': ensure => present }
+    }
+    if ! defined(Httpd::Mod['proxy']) {
+      httpd::mod { 'proxy': ensure => present }
+    }
+    if ! defined(Httpd::Mod['proxy_http']) {
+      httpd::mod { 'proxy_http': ensure => present }
+    }
+  }
+
+  file { $build_log_document_root:
+    ensure  => directory,
+    mode    => '0755',
+    owner   => 'nodepool',
+    group   => 'nodepool',
+    require => [
+        User['nodepool'],
+        File['/var/log/nodepool'],
     ],
   }
 
