@@ -8,6 +8,22 @@
     Require all granted
   </Directory>
 
+  # Allow access to image files
+  Alias /images /opt/nodepool_dib
+  <Directory /opt/nodepool_dib>
+    Options <%= scope.lookupvar("httpd::params::options") %>
+    AllowOverride None
+    Require all granted
+    # Only allow access to the qcow2 files as they are smallest
+    <FilesMatch ".+\.(vhd|raw)(\.(md5|sha256))?$">
+      Require all denied
+    </FilesMatch>
+  </Directory>
+  # Exclude the dib build dir as well.
+  <Directory /opt/nodepool_dib/*.d/>
+    Require all denied
+  </Directory>
+
   ErrorLog /var/log/<%= scope.lookupvar("httpd::params::apache_name") %>/nodepool_error.log
   LogLevel warn
   CustomLog /var/log/<%= scope.lookupvar("httpd::params::apache_name") %>/nodepool_access.log combined
