@@ -8,6 +8,17 @@
     Require all granted
   </Directory>
 
+  # Allow access to image files
+  Alias /images /opt/nodepool_dib
+  <Directory /opt/nodepool_dib>
+    Options <%= scope.lookupvar("httpd::params::options") %>
+    AllowOverride None
+    # Only allow access to the qcow2 files as they are smallest
+    <FilesMatch ".+\.qcow2(\.(md5|sha256))?$">
+      Require all granted
+    </FilesMatch>
+  </Directory>
+
   ErrorLog /var/log/<%= scope.lookupvar("httpd::params::apache_name") %>/nodepool_error.log
   LogLevel warn
   CustomLog /var/log/<%= scope.lookupvar("httpd::params::apache_name") %>/nodepool_access.log combined
