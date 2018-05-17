@@ -26,6 +26,12 @@ class nodepool::builder(
   $build_workers = '1',
   $upload_workers = '4',
   $zuulv3 = false,
+  $ssl_cert_file = '',
+  $ssl_cert_file_contents = '',
+  $ssl_chain_file = '',
+  $ssl_chain_file_contents = '',
+  $ssl_key_file = '',
+  $ssl_key_file_contents = '',
 ) {
 
   # This requires custom packages which aren't build for arm64; if we
@@ -110,11 +116,17 @@ class nodepool::builder(
   if $enable_build_log_via_http == true {
     include ::httpd
 
+    if $ssl_cert_file != '' {
+      $http_template = 'nodepool/nodepool-builder.vhost.erb'
+    } else {
+      $http_template = 'nodepool/nodepool-builder.ssl.vhost.erb'
+    }
+
     ::httpd::vhost { $vhost_name:
       port     => 80,
       priority => '50',
       docroot  => 'MEANINGLESS_ARGUMENT',
-      template => 'nodepool/nodepool-builder.vhost.erb',
+      template => $http_template,
     }
     if ! defined(Httpd::Mod['rewrite']) {
       httpd::mod { 'rewrite': ensure => present }
@@ -124,6 +136,49 @@ class nodepool::builder(
     }
     if ! defined(Httpd::Mod['proxy_http']) {
       httpd::mod { 'proxy_http': ensure => present }
+    }
+
+    file { '/etc/ssl/certs':
+      ensure => directory,
+      owner  => 'root',
+      mode   => '0755',
+    }
+
+    file { '/etc/ssl/private':
+      ensure => directory,
+      owner  => 'root',
+      mode   => '0700',
+    }
+
+    if $ssl_cert_file_contents != '' {
+      file { $ssl_cert_file:
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0640',
+        content => $ssl_cert_file_contents,
+        before  => Httpd::Vhost[$vhost_name],
+      }
+    }
+
+    if $ssl_key_file_contents != '' {
+      file { $ssl_key_file:
+        owner   => 'root',
+        group   => 'ssl-cert',
+        mode    => '0640',
+        content => $ssl_key_file_contents,
+        require => Package['ssl-cert'],
+        before  => Httpd::Vhost[$vhost_name],
+      }
+    }
+
+    if $ssl_chain_file_contents != '' {
+      file { $ssl_chain_file:
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0640',
+        content => $ssl_chain_file_contents,
+        before  => Httpd::Vhost[$vhost_name],
+      }
     }
   }
 
@@ -137,5 +192,7 @@ class nodepool::builder(
         File['/var/log/nodepool'],
     ],
   }
+
+
 
 }
