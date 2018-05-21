@@ -117,9 +117,9 @@ class nodepool::builder(
     include ::httpd
 
     if $ssl_cert_file != '' {
-      $http_template = 'nodepool/nodepool-builder.vhost.erb'
-    } else {
       $http_template = 'nodepool/nodepool-builder.ssl.vhost.erb'
+    } else {
+      $http_template = 'nodepool/nodepool-builder.vhost.erb'
     }
 
     ::httpd::vhost { $vhost_name:
