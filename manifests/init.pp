@@ -79,7 +79,7 @@ class nodepool (
     'libgmp-dev',         # transitive dep of paramiko
     # xml2 and xslt are needed to build python lxml.
     'libxml2-dev',
-    'libxslt-dev',
+    'libxslt1-dev',
   ]
 
   ensure_packages($packages, {'ensure' => 'present'})
@@ -136,7 +136,7 @@ class nodepool (
       Package['libffi-dev'],
       Package['libssl-dev'],
       Package['libxml2-dev'],
-      Package['libxslt-dev'],
+      Package['libxslt1-dev'],
       Package['libgmp-dev'],
     ],
   }
