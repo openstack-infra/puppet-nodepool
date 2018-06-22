@@ -79,10 +79,19 @@ class nodepool (
     'libgmp-dev',         # transitive dep of paramiko
     # xml2 and xslt are needed to build python lxml.
     'libxml2-dev',
-    'libxslt-dev',
   ]
 
   ensure_packages($packages, {'ensure' => 'present'})
+
+  if versioncmp($::operatingsystemrelease, '16.04') >= 0 {
+    $libxslt_dev = 'libxslt1-dev'
+  } else {
+    $libxslt_dev = 'libxslt-dev'
+  }
+  package { 'libxslt-dev':
+    ensure => present,
+    name   => $libxslt_dev,
+  }
 
   $absent_packages = [
     'python-openssl',
