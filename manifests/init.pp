@@ -119,7 +119,7 @@ class nodepool (
   include ::pip
 
   if ($python_version == 3) {
-    include ::pip::python3
+    ensure_packages(['python3-all-dev'])
     $pip_command = 'pip3'
   } else {
     $pip_command = 'pip'
