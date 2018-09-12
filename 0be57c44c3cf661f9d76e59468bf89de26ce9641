@@ -1,0 +1,9 @@
+Code-Review+2: Ian Wienand <iwienand@redhat.com>
+Workflow+1: Ian Wienand <iwienand@redhat.com>
+Code-Review+1: Filippo Inzaghi <zhao.daqing@99cloud.net>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Wed, 12 Sep 2018 06:50:02 +0000
+Reviewed-on: https://review.openstack.org/546814
+Project: openstack-infra/puppet-nodepool
+Branch: refs/heads/master
