@@ -1,8 +1,0 @@
-<% if @statsd_host != nil && @statsd_host != "" -%>
-export STATSD_HOST=<%= @statsd_host %>
-export STATSD_PORT=8125
-<% end -%>
-<% if @statsd_prefix != nil && @statsd_prefix != "" -%>
-export STATSD_PREFIX=<%= @statsd_prefix %>
-<% end -%>
-DAEMON_ARGS="-c /etc/nodepool/nodepool.yaml -l /etc/nodepool/launcher-logging.conf"
